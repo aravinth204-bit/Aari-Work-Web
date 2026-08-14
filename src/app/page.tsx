@@ -19,50 +19,70 @@ export default function Home() {
       <FloatingActions />
 
       {/* HERO */}
-      <section className="relative min-h-[92vh] flex items-center">
+      <section className="relative min-h-[92vh] flex items-center overflow-hidden">
+        {/* Background Image / Video Fallback */}
+        {/* Mobile Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="md:hidden absolute inset-0 w-full h-full object-cover object-[70%_center]"
+          poster="/images/hero_aari_artisan.jpg"
+        >
+          <source src="/videos/hero_background_mobile.mp4" type="video/mp4" />
+          <source src="/images/Woman_performing_Aari_needle_emb%E2%80%A6_202608141634.mp4" type="video/mp4" />
+        </video>
+
+        {/* Desktop Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="hidden md:block absolute inset-0 w-full h-full object-cover object-center"
+          poster="/images/hero_aari_artisan.jpg"
+        >
+          <source src="/videos/hero_background.mp4" type="video/mp4" />
+          <source src="/images/Woman_performing_Aari_needle_emb%E2%80%A6_202608141615.mp4" type="video/mp4" />
+        </video>
         <Image
-          src="/images/hero_aari_work.jpg"
-          alt="Handcrafted Aari Work Embroidery"
+          src="/images/hero_aari_artisan.jpg"
+          alt="Handcrafted Aari Work Embroidery Artisan"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover object-[75%_center] md:object-center -z-10"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80 md:bg-gradient-to-r md:from-black/85 md:via-black/60 md:to-black/30" />
-        <div className="relative mx-auto max-w-6xl px-4 pt-24 pb-16 text-white">
-          <span className="inline-block rounded-full border border-[#c9a227]/70 px-4 py-1 text-xs tracking-widest text-[#e8c85a]">
-            {site.city.toUpperCase()} • SINCE 2025
+
+        {/* Lighter, Crystal-Clear Overlay Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20 md:bg-gradient-to-r md:from-black/80 md:via-black/35 md:to-transparent" />
+
+        <div className="relative mx-auto max-w-6xl px-4 pt-32 pb-20 text-white z-10">
+          <span className="inline-block rounded-full border border-[#c9a227]/80 bg-black/40 backdrop-blur-md px-3.5 py-1 text-xs tracking-widest text-[#e8c85a] shadow-md">
+            ✨ HANDMADE AARI WORK STUDIO
           </span>
-          <h1 className="font-serif-display mt-5 text-4xl md:text-6xl leading-tight max-w-2xl">
-            Handcrafted <span className="text-[#e8c85a]">Aari Work</span> Blouses for Your Big Day
+          <h1 className="font-serif-display mt-4 text-3xl sm:text-5xl md:text-6xl leading-tight max-w-xl drop-shadow-md">
+            Handcrafted <span className="text-[#e8c85a]">Aari Work</span> Blouses
           </h1>
-          <p className="mt-5 max-w-lg text-white/80">
-            Bridal, party wear, maggam & kids embroidery — ungal kanavu design-a nangal nijamakkurom.
-            Perfect fitting, on-time delivery guarantee.
+          <p className="mt-3 max-w-md text-white/90 text-sm sm:text-base font-light drop-shadow-sm">
+            Exclusive Bridal & Party Wear Embroidery • Perfect Fitting
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#enquiry" className="rounded-full bg-[#c9a227] px-7 py-3.5 font-medium text-[#3d0a15] hover:bg-[#e0b62e]">
-              Enquiry 
+          <div className="mt-6 hidden md:flex flex-wrap gap-3">
+            <a
+              href="#enquiry"
+              className="rounded-full bg-[#c9a227] px-6 py-2.5 text-sm font-semibold text-[#3d0a15] hover:bg-[#e0b62e] transition shadow-md active:scale-95"
+            >
+              Enquiry
             </a>
             <a
               href={`https://wa.me/${site.whatsapp}`}
               target="_blank"
-              className="rounded-full border border-white/50 px-7 py-3.5 font-medium hover:bg-white/10"
+              rel="noreferrer"
+              className="rounded-full border border-white/60 bg-black/30 backdrop-blur-sm px-6 py-2.5 text-sm font-medium hover:bg-white/20 transition shadow-md active:scale-95"
             >
-              WhatsApp Now
+              WhatsApp
             </a>
-          </div>
-          <div className="mt-12 grid grid-cols-3 gap-4 max-w-md text-center">
-            {[
-              ["12+", "Years Exp."],
-              ["2500+", "Blouses Done"],
-              ["4.9★", "Customer Rating"],
-            ].map(([a, b]) => (
-              <div key={b}>
-                <div className="font-serif-display text-2xl text-[#e8c85a]">{a}</div>
-                <div className="text-[11px] uppercase tracking-wide text-white/70">{b}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -71,8 +91,17 @@ export default function Home() {
       <Section id="about" eyebrow="About Us" title="Thread by Thread, Made with Love">
         <div className="grid md:grid-cols-2 gap-10 items-center">
           <Reveal>
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden ring-1 ring-[#eadfcd] shadow-lg">
-              <Image src="/images/Img-1.png" alt="Artisan doing aari work" fill className="object-cover" />
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden ring-1 ring-[#eadfcd] shadow-lg bg-black">
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+                poster="/images/Img-1.png"
+              >
+                <source src="/videos/video-1.mp4" type="video/mp4" />
+              </video>
             </div>
           </Reveal>
           <Reveal delay={120}>
@@ -190,7 +219,16 @@ export default function Home() {
       <footer id="contact" className="bg-[#2b0c15] text-white/80">
         <div className="mx-auto max-w-6xl px-4 py-14 grid md:grid-cols-3 gap-10">
           <div>
-            <h3 className="font-serif-display text-xl text-white">{site.name}</h3>
+            <div className="flex items-center gap-2.5">
+              <Image
+                src="/images/Logo.png"
+                alt={site.name}
+                width={36}
+                height={36}
+                className="h-9 w-9 object-contain rounded-full bg-white/10 p-0.5"
+              />
+              <h3 className="font-serif-display text-xl text-white">{site.name}</h3>
+            </div>
             <p className="mt-3 text-sm">{site.tagline} in {site.city}.</p>
             <div className="mt-4 flex gap-3 text-sm">
               <a href={site.instagram} target="_blank" className="hover:text-[#e8c85a]">Instagram</a>

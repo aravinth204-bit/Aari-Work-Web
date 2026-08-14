@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { site, faqs } from "@/lib/site";
 
 const links = [
@@ -30,10 +31,14 @@ export function Header() {
       }`}
     >
       <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
-        <a href="#home" className="flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-[#6b1226] text-[#c9a227] font-serif-display">
-            A
-          </span>
+        <a href="#home" className="flex items-center gap-2.5">
+          <Image
+            src="/images/Logo.png"
+            alt={site.name}
+            width={36}
+            height={36}
+            className="h-9 w-9 object-contain rounded-full bg-white/20 p-0.5 shadow-sm"
+          />
           <span className={`font-serif-display text-lg ${solid ? "text-[#6b1226]" : "text-white"}`}>
             {site.name}
           </span>

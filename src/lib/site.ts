@@ -23,40 +23,40 @@ export const workTypes = [
 
 export const services = [
   {
-    title: "Bridal Aari Blouse",
-    desc: "Heavy zardosi, stone & bead work for muhurtham, reception and engagement.",
-    price: "₹4,500 onwards",
-    icon: "👰",
-  },
-  {
-    title: "Party Wear Blouse",
-    desc: "Trendy designer patterns — mirror, pearl, sequin and thread combinations.",
-    price: "₹2,000 onwards",
-    icon: "✨",
-  },
-  {
-    title: "Simple / Daily Wear",
-    desc: "Neat neckline and sleeve work for office, temple and function wear.",
-    price: "₹900 onwards",
+    title: "Aari Work",
+    desc: "Intricate handcrafted thread, bead & needlework stitched to perfection for bridal & festive wear.",
+    price: "Custom quote",
     icon: "🧵",
   },
   {
-    title: "Maggam Work Saree",
-    desc: "Pallu and border embroidery on silk, georgette and organza sarees.",
-    price: "₹3,500 onwards",
-    icon: "🥻",
+    title: "Embroidery",
+    desc: "Classic & contemporary hand embroidery patterns custom tailored for blouses & sarees.",
+    price: "Custom quote",
+    icon: "🪡",
   },
   {
-    title: "Kids Frock Work",
-    desc: "Cute embroidery for birthday frocks, half saree and pattu pavadai.",
-    price: "₹800 onwards",
-    icon: "🎀",
+    title: "Brooches Work",
+    desc: "Exquisite designer brooches, handcrafted motif attachments & statement accents.",
+    price: "Custom quote",
+    icon: "🧷",
   },
   {
-    title: "Custom Design",
-    desc: "Bring your Pinterest or Instagram reference — we recreate it exactly.",
-    price: "On request",
-    icon: "🎨",
+    title: "Zardosi Work",
+    desc: "Royal metallic zardosi embroidery crafted with gold & silver metallic threads & heavy detailing.",
+    price: "Custom quote",
+    icon: "👑",
+  },
+  {
+    title: "Stone & Kundan Work",
+    desc: "Sparkling kundan stones, crystal embellishments & rich bridal stone work designs.",
+    price: "Custom quote",
+    icon: "💎",
+  },
+  {
+    title: "Cut Work & Patch Work",
+    desc: "Precision cutwork patterns, layered fabric patches & modern structural embroidery artwork.",
+    price: "Custom quote",
+    icon: "✂️",
   },
 ];
 
