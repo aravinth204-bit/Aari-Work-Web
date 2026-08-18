@@ -2,15 +2,14 @@ import Image from "next/image";
 import Gallery from "@/components/Gallery";
 import EnquiryForm from "@/components/EnquiryForm";
 import Reveal from "@/components/Reveal";
+import InteractiveProcess from "@/components/InteractiveProcess";
 import { Header, Faqs, FloatingActions } from "@/components/Chrome";
 import { site, services, testimonials } from "@/lib/site";
 
-const steps = [
-  { n: "01", t: "Design Select", d: "Gallery-la illa ungal reference photo-la design select pannunga." },
-  { n: "02", t: "Measurement", d: "Shop-la vandhu illa WhatsApp chart mulama measurement kudunga." },
-  { n: "03", t: "Hand Work", d: "Experienced artisans neat-a aari work pannuvanga. Photo update kidaikum." },
-  { n: "04", t: "Delivery", d: "Trial + finishing mudichu on-time delivery / courier." },
-];
+
+
+
+
 
 export default function Home() {
   return (
@@ -148,17 +147,7 @@ export default function Home() {
 
       {/* PROCESS */}
       <Section id="process" eyebrow="How It Works" title="Simple 4 Step Process" alt>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {steps.map((s, i) => (
-            <Reveal key={s.n} delay={i * 80}>
-              <div className="relative h-full rounded-3xl bg-white p-6 ring-1 ring-[#eadfcd]">
-                <span className="font-serif-display text-4xl text-[#eadfcd]">{s.n}</span>
-                <h3 className="mt-2 font-medium text-[#6b1226]">{s.t}</h3>
-                <p className="mt-2 text-sm text-neutral-600">{s.d}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+        <InteractiveProcess />
       </Section>
 
       {/* REVIEWS */}
@@ -279,3 +268,4 @@ function Section({
     </section>
   );
 }
+

@@ -60,14 +60,29 @@ export const services = [
   },
 ];
 
-export const gallery = [
-  { src: "/images/img-2.png", cat: "Bridal", title: "Peacock Zardosi Bridal" },
-  { src: "/images/img-3.png", cat: "Party", title: "Pastel Mirror Work" },
-  { src: "/images/img-4.png", cat: "Simple", title: "Neat Thread Neckline" },
-  { src: "/images/img-5.png", cat: "Process", title: "Handmade With Love" },
-  { src: "/images/img-6.png", cat: "Kids", title: "Birthday Frock Work" },
-  { src: "/images/img-7.png", cat: "Saree", title: "Maggam Saree Pallu" },
+export interface GalleryItem {
+  id: string;
+  src: string;
+  cat: string;
+  title: string;
+  desc?: string;
+}
+
+export const gallery: GalleryItem[] = [
+  { id: "g1", src: "/images/img-2.png", cat: "Bridal", title: "Peacock Zardosi Bridal Blouse", desc: "Heavy gold zardosi embroidery with handcrafted peacock motifs & stone embellishments." },
+  { id: "g2", src: "/images/img-3.png", cat: "Party Wear", title: "Pastel Mirror & Kundan Work", desc: "Elegant pastel silk blouse embellished with crystal mirrors and Kundan stones." },
+  { id: "g3", src: "/images/img-4.png", cat: "Minimal", title: "Neat Chain Stitch Neckline", desc: "Subtle & classy handcrafted threadwork for office and light saree occasions." },
+  { id: "g4", src: "/images/img-5.png", cat: "Custom Work", title: "3D Layered Cutwork Pattern", desc: "Modern structural cutwork design with gold thread outlines and bead highlights." },
+  { id: "g5", src: "/images/img-6.png", cat: "Kids Wear", title: "Royal Kids Frock Embroidery", desc: "Custom handcrafted embroidery work for children's birthday frocks & pattu pavadai." },
+  { id: "g6", src: "/images/img-7.png", cat: "Saree Work", title: "Maggam Saree Pallu & Borders", desc: "Heavy metallic gold thread maggam work embellishments for bridal silk sarees." },
+  { id: "g7", src: "/images/Img-1.png", cat: "Bridal", title: "Grand Bridal Back Neck Motif", desc: "Rich temple motif Aari work crafted with original stones and zari threads." },
+  { id: "g8", src: "/images/hero_aari_artisan.jpg", cat: "Artisan Work", title: "Handmade Frame Needlework", desc: "Live artisan needlework on traditional wooden frame with precision detailing." },
+  { id: "g9", src: "/images/hero_aari_work.jpg", cat: "Party Wear", title: "Floral Thread & Bead Sleeves", desc: "Intricate floral vines and bead clusters covering full elbow sleeves." },
+  { id: "g10", src: "/images/Home.png", cat: "Bridal", title: "Traditional Bridal Zari Border", desc: "Classic South Indian bridal saree blouse embellishment with high stone density." },
+  { id: "g11", src: "/images/img-2.png", cat: "Saree Work", title: "Elephant Motif Maggam Blouse", desc: "Royal heritage elephant motif embroidery in antique gold wire." },
+  { id: "g12", src: "/images/img-3.png", cat: "Minimal", title: "Geometric Elbow Sleeve Border", desc: "Clean geometric threadwork border tailored for daily festive wear." },
 ];
+
 
 export const testimonials = [
   {

@@ -15,3 +15,16 @@ export const enquiries = pgTable("enquiries", {
 
 export type Enquiry = typeof enquiries.$inferSelect;
 export type NewEnquiry = typeof enquiries.$inferInsert;
+
+export const galleryImages = pgTable("gallery_images", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  category: varchar("category", { length: 80 }).notNull(),
+  imageUrl: text("image_url").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type GalleryImageRecord = typeof galleryImages.$inferSelect;
+export type NewGalleryImageRecord = typeof galleryImages.$inferInsert;
+
