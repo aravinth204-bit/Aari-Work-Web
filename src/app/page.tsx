@@ -3,17 +3,14 @@ import Gallery from "@/components/Gallery";
 import EnquiryForm from "@/components/EnquiryForm";
 import Reveal from "@/components/Reveal";
 import InteractiveProcess from "@/components/InteractiveProcess";
+import Preloader from "@/components/Preloader";
 import { Header, Faqs, FloatingActions } from "@/components/Chrome";
 import { site, services, testimonials } from "@/lib/site";
-
-
-
-
-
 
 export default function Home() {
   return (
     <main id="home">
+      <Preloader />
       <Header />
       <FloatingActions />
 
