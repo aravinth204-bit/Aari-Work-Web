@@ -21,12 +21,16 @@ export default function Reveal({
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
-            setTimeout(() => setVisible(true), delay);
+            if (delay > 0) {
+              setTimeout(() => setVisible(true), delay);
+            } else {
+              setVisible(true);
+            }
             obs.unobserve(e.target);
           }
         });
       },
-      { threshold: 0.12 },
+      { threshold: 0.2 }
     );
     obs.observe(el);
     return () => obs.disconnect();

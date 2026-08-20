@@ -1,9 +1,25 @@
 @import "tailwindcss";
 
+@theme {
+  --color-ivory: #F8F3EC;
+  --color-beige: #F1E7DC;
+  --color-white: #FFFFFF;
+  --color-burgundy-dark: #3A2025;
+  --color-burgundy: #6B2638;
+  --color-burgundy-hover: #541D2B;
+  --color-gold: #B08A57;
+  --color-gold-light: #D8C19A;
+}
+
 :root {
-  --maroon: #6b1226;
-  --gold: #c9a227;
-  --cream: #fdf8f1;
+  --color-ivory: #F8F3EC;
+  --color-beige: #F1E7DC;
+  --color-white: #FFFFFF;
+  --color-burgundy-dark: #3A2025;
+  --color-burgundy: #6B2638;
+  --color-burgundy-hover: #541D2B;
+  --color-gold: #B08A57;
+  --color-gold-light: #D8C19A;
 }
 
 html {
@@ -11,24 +27,202 @@ html {
 }
 
 body {
-  background: var(--cream);
-  color: #2b1a1f;
+  background-color: var(--color-ivory);
+  color: var(--color-burgundy-dark);
 }
 
 .font-serif-display {
   font-family: "Playfair Display", Georgia, "Times New Roman", serif;
 }
 
+/* Scroll Reveal Animations (Point 5) */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: translateY(20px);
+  transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
 }
+
+@media (min-width: 640px) {
+  .reveal {
+    transform: translateY(25px);
+    transition: opacity 750ms cubic-bezier(0.22, 1, 0.36, 1), transform 750ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@media (min-width: 1024px) {
+  .reveal {
+    transform: translateY(30px);
+    transition: opacity 800ms cubic-bezier(0.22, 1, 0.36, 1), transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
 .reveal.is-visible {
   opacity: 1;
-  transform: none;
+  transform: translateY(0);
 }
 
 .gold-line {
-  background: linear-gradient(90deg, transparent, #c9a227, transparent);
+  background: linear-gradient(90deg, transparent, #B08A57, transparent);
 }
+
+/* Hero Entrance Animations (Point 3) */
+@keyframes heroFadeUp14 {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroFadeUp16 {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroFadeUp18 {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroFadeUp24 {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-animate-eyebrow,
+.hero-animate-heading,
+.hero-animate-paragraph,
+.hero-animate-cta-primary,
+.hero-animate-cta-secondary {
+  opacity: 0;
+}
+
+/* Mobile: Slower, calmer entrance */
+.hero-animate-eyebrow {
+  animation: heroFadeUp14 800ms cubic-bezier(0.16, 1, 0.3, 1) 2200ms forwards;
+}
+
+.hero-animate-heading {
+  animation: heroFadeUp24 950ms cubic-bezier(0.16, 1, 0.3, 1) 2400ms forwards;
+}
+
+.hero-animate-paragraph {
+  animation: heroFadeUp18 900ms cubic-bezier(0.16, 1, 0.3, 1) 2650ms forwards;
+}
+
+.hero-animate-cta-primary {
+  animation: heroFadeUp16 850ms cubic-bezier(0.16, 1, 0.3, 1) 2900ms forwards;
+}
+
+.hero-animate-cta-secondary {
+  animation: heroFadeUp16 850ms cubic-bezier(0.16, 1, 0.3, 1) 3100ms forwards;
+}
+
+/* Desktop: Silky-smooth, editorial luxury entrance */
+@media (min-width: 768px) {
+  .hero-animate-eyebrow {
+    animation: heroFadeUp14 1000ms cubic-bezier(0.16, 1, 0.3, 1) 2200ms forwards;
+  }
+  .hero-animate-heading {
+    animation: heroFadeUp24 1200ms cubic-bezier(0.16, 1, 0.3, 1) 2400ms forwards;
+  }
+  .hero-animate-paragraph {
+    animation: heroFadeUp18 1100ms cubic-bezier(0.16, 1, 0.3, 1) 2650ms forwards;
+  }
+  .hero-animate-cta-primary {
+    animation: heroFadeUp16 1000ms cubic-bezier(0.16, 1, 0.3, 1) 2900ms forwards;
+  }
+  .hero-animate-cta-secondary {
+    animation: heroFadeUp16 1000ms cubic-bezier(0.16, 1, 0.3, 1) 3100ms forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .hero-animate-eyebrow,
+  .hero-animate-heading,
+  .hero-animate-paragraph,
+  .hero-animate-cta-primary,
+  .hero-animate-cta-secondary {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Gold Shimmer CTA Button Effect (Point 7) */
+.cta-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-shimmer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(216, 193, 154, 0.28) 45%,
+    rgba(176, 138, 87, 0.35) 50%,
+    rgba(216, 193, 154, 0.28) 55%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  pointer-events: none;
+  z-index: 1;
+}
+
+@media (hover: hover) {
+  .cta-shimmer:hover::before {
+    animation: ctaGoldShimmer 850ms ease-in-out forwards;
+  }
+}
+
+@keyframes ctaGoldShimmer {
+  0% {
+    left: -150%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+.cta-shimmer > * {
+  position: relative;
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-shimmer::before {
+    display: none !important;
+    animation: none !important;
+  }
+}
+

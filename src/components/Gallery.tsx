@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { gallery as defaultGallery, GalleryItem, site } from "@/lib/site";
 
 export default function Gallery() {
@@ -10,6 +11,11 @@ export default function Gallery() {
   const [visibleCount, setVisibleCount] = useState(6); // 3 top + 3 bottom = 6 initial items
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [zoomScale, setZoomScale] = useState(1);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch dynamic gallery items from database / API if available
   useEffect(() => {
@@ -67,6 +73,18 @@ export default function Gallery() {
   const handleZoomOut = () => setZoomScale((s) => Math.max(s - 0.5, 1));
   const toggleZoom = () => setZoomScale((s) => (s === 1 ? 2 : 1));
 
+  // Lock body scroll when Lightbox is open
+  useEffect(() => {
+    if (selectedIndex !== null) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedIndex]);
+
   // Keyboard accessibility
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -94,8 +112,8 @@ export default function Gallery() {
             }}
             className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
               activeCategory === cat
-                ? "bg-[#6b1226] text-white shadow-md border border-[#6b1226]"
-                : "bg-white text-[#6b1226] border border-[#eadfcd] hover:border-[#c9a227] hover:bg-[#fcf8f2]"
+                ? "bg-[#6B2638] text-white shadow-md border border-[#6B2638]"
+                : "bg-[#FFFFFF] text-[#6B2638] border border-[#D8C19A] hover:border-[#B08A57] hover:bg-[#F1E7DC]"
             }`}
           >
             {cat}
@@ -109,30 +127,31 @@ export default function Gallery() {
           <div
             key={g.id || `${g.src}-${index}`}
             onClick={() => openLightbox(index)}
-            className="group relative cursor-pointer overflow-hidden rounded-3xl aspect-[3/4] bg-white shadow-sm ring-1 ring-[#eadfcd] hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
+            className="group relative cursor-pointer overflow-hidden rounded-3xl aspect-[3/4] bg-[#FFFFFF] shadow-sm ring-1 ring-[#D8C19A] hover:ring-2 hover:ring-[#B08A57] hover:shadow-xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
           >
             <Image
               src={g.src}
               alt={g.title}
               fill
               sizes="(max-width: 768px) 50vw, 33vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] motion-reduce:group-hover:scale-100"
             />
-            {/* Dark gradient overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-85 transition-opacity" />
+            {/* Dark gradient overlay with subtle burgundy brand tint on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#3A2025]/85 via-[#3A2025]/25 to-transparent transition-opacity duration-500 opacity-70 group-hover:opacity-85" />
+            <div className="absolute inset-0 bg-[#6B2638]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
             {/* Top Category Badge */}
-            <span className="absolute top-3 left-3 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-medium text-[#e8c85a] ring-1 ring-white/20">
+            <span className="absolute top-3 left-3 rounded-full bg-[#3A2025]/80 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-medium text-[#D8C19A] ring-1 ring-[#D8C19A]/30 group-hover:ring-[#B08A57]/60 transition-all duration-500">
               {g.cat}
             </span>
 
             {/* Click to Zoom Hint Icon */}
-            <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity rounded-full bg-[#6b1226]/90 p-2 text-white text-xs shadow-md">
+            <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full bg-[#6B2638]/90 p-2 text-white text-xs shadow-md">
               🔍 Zoom
             </span>
 
             {/* Title & Info */}
-            <div className="absolute inset-x-0 bottom-0 p-4 text-left text-white">
+            <div className="absolute inset-x-0 bottom-0 p-4 text-left text-white z-10">
               <h4 className="font-serif-display text-base md:text-lg text-white leading-tight drop-shadow-sm">
                 {g.title}
               </h4>
@@ -141,7 +160,7 @@ export default function Gallery() {
                   {g.desc}
                 </p>
               )}
-              <span className="mt-2 inline-flex items-center gap-1 text-[11px] text-[#e8c85a] font-medium group-hover:underline">
+              <span className="mt-2 inline-flex items-center gap-1 text-[11px] text-[#D8C19A] font-medium group-hover:text-white transition-colors duration-500">
                 <span>View High-Res Work</span>
                 <span>→</span>
               </span>
@@ -155,10 +174,10 @@ export default function Gallery() {
         <div className="mt-12 text-center">
           <button
             onClick={handleLoadMore}
-            className="group relative inline-flex items-center gap-2 rounded-full bg-[#6b1226] px-8 py-3.5 text-sm font-semibold text-white shadow-md hover:bg-[#851932] hover:shadow-lg active:scale-95 transition-all duration-200"
+            className="cta-shimmer group relative inline-flex items-center gap-2 rounded-full bg-[#6B2638] px-8 py-3.5 text-sm font-semibold text-white shadow-md hover:bg-[#541D2B] hover:shadow-lg active:scale-95 transition-all duration-200"
           >
             <span>✨ Explore More Designs</span>
-            <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs text-[#e8c85a]">
+            <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs text-[#D8C19A]">
               +{filteredItems.length - visibleCount} More
             </span>
           </button>
@@ -166,51 +185,61 @@ export default function Gallery() {
       )}
 
       {/* Fullscreen High-Res Lightbox Modal with Zoom & Controls */}
-      {selectedIndex !== null && activeItem && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col justify-between p-4 sm:p-6 animate-fadeIn">
+      {mounted && selectedIndex !== null && activeItem && createPortal(
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeLightbox();
+          }}
+          className="fixed inset-0 z-[200] bg-[#3A2025]/98 backdrop-blur-md flex flex-col justify-between p-3 sm:p-6 overflow-hidden animate-fadeIn text-white"
+        >
           {/* Header Controls Bar */}
-          <div className="flex items-center justify-between text-white z-10">
-            <div className="flex items-center gap-3">
-              <span className="text-xs sm:text-sm font-semibold text-[#e8c85a] bg-white/10 px-3 py-1 rounded-full border border-white/15">
+          <div className="flex items-center justify-between text-white z-20 gap-2 shrink-0 pt-2 sm:pt-0">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="text-xs sm:text-sm font-semibold text-[#D8C19A] bg-white/10 px-2.5 sm:px-3 py-1 rounded-full border border-white/15">
                 {selectedIndex + 1} / {filteredItems.length}
               </span>
-              <span className="hidden sm:inline-block text-sm text-white/70">
+              <span className="text-xs sm:text-sm text-white/80">
                 {activeItem.cat} Work
               </span>
             </div>
 
             {/* Zoom & Action Buttons */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleZoomOut}
-                disabled={zoomScale <= 1}
-                className="rounded-full bg-white/15 px-3 py-1.5 text-xs sm:text-sm font-medium hover:bg-white/30 disabled:opacity-40 transition"
-                title="Zoom Out"
-              >
-                🔍 -
-              </button>
-              <span className="text-xs text-white/80 min-w-[36px] text-center font-mono">
-                {Math.round(zoomScale * 100)}%
-              </span>
-              <button
-                onClick={handleZoomIn}
-                disabled={zoomScale >= 3}
-                className="rounded-full bg-white/15 px-3 py-1.5 text-xs sm:text-sm font-medium hover:bg-white/30 disabled:opacity-40 transition"
-                title="Zoom In"
-              >
-                🔍 +
-              </button>
-              {zoomScale > 1 && (
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="hidden sm:flex items-center gap-1 bg-white/10 p-1 rounded-full border border-white/15">
                 <button
-                  onClick={() => setZoomScale(1)}
-                  className="rounded-full bg-white/15 px-3 py-1.5 text-xs text-white/80 hover:bg-white/30 transition"
+                  onClick={handleZoomOut}
+                  disabled={zoomScale <= 1}
+                  className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium hover:bg-white/30 disabled:opacity-40 transition"
+                  title="Zoom Out"
                 >
-                  Reset
+                  🔍 -
                 </button>
-              )}
+                <span className="text-xs text-white/80 min-w-[32px] text-center font-mono">
+                  {Math.round(zoomScale * 100)}%
+                </span>
+                <button
+                  onClick={handleZoomIn}
+                  disabled={zoomScale >= 3}
+                  className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium hover:bg-white/30 disabled:opacity-40 transition"
+                  title="Zoom In"
+                >
+                  🔍 +
+                </button>
+                {zoomScale > 1 && (
+                  <button
+                    onClick={() => setZoomScale(1)}
+                    className="rounded-full bg-white/15 px-2 py-1 text-[11px] text-white/80 hover:bg-white/30 transition"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+
+              {/* Prominent High-Contrast Close Button (Always visible on mobile & desktop at top-right) */}
               <button
                 onClick={closeLightbox}
-                className="ml-2 rounded-full bg-white/20 h-9 w-9 grid place-items-center text-white hover:bg-red-600 transition text-lg font-bold"
+                className="rounded-full bg-[#6B2638] hover:bg-[#541D2B] h-10 w-10 sm:h-11 sm:w-11 flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-2xl ring-2 ring-[#D8C19A] active:scale-90 transition-all shrink-0"
+                aria-label="Close Modal"
                 title="Close (Esc)"
               >
                 ✕
@@ -218,13 +247,19 @@ export default function Gallery() {
             </div>
           </div>
 
-          {/* Main Large Image Workspace with Zoom Container */}
-          <div className="relative flex-1 flex items-center justify-center overflow-hidden my-4">
+          {/* Main Large Image Workspace */}
+          <div
+            onClick={(e) => {
+              if (e.target === e.currentTarget) closeLightbox();
+            }}
+            className="relative flex-1 flex items-center justify-center overflow-hidden my-2 sm:my-4"
+          >
             {/* Left Navigation Arrow */}
             <button
               onClick={handlePrev}
-              className="absolute left-2 sm:left-4 z-20 h-11 w-11 grid place-items-center rounded-full bg-black/60 text-white hover:bg-[#6b1226] border border-white/20 transition shadow-lg"
+              className="absolute left-1 sm:left-4 z-20 h-10 w-10 sm:h-12 sm:w-12 grid place-items-center rounded-full bg-[#3A2025]/90 text-white hover:bg-[#6B2638] border border-white/20 transition shadow-xl active:scale-90"
               title="Previous Design (Left Arrow)"
+              aria-label="Previous"
             >
               ‹
             </button>
@@ -232,7 +267,7 @@ export default function Gallery() {
             {/* Large Image Frame */}
             <div
               onClick={toggleZoom}
-              className="relative cursor-zoom-in max-w-5xl w-full h-full max-h-[75vh] flex items-center justify-center overflow-hidden select-none"
+              className="relative cursor-zoom-in max-w-5xl w-full h-full max-h-[65vh] sm:max-h-[75vh] flex items-center justify-center overflow-hidden select-none"
             >
               <div
                 className="relative w-full h-full transition-transform duration-300 ease-out"
@@ -252,42 +287,52 @@ export default function Gallery() {
             {/* Right Navigation Arrow */}
             <button
               onClick={handleNext}
-              className="absolute right-2 sm:right-4 z-20 h-11 w-11 grid place-items-center rounded-full bg-black/60 text-white hover:bg-[#6b1226] border border-white/20 transition shadow-lg"
+              className="absolute right-1 sm:right-4 z-20 h-10 w-10 sm:h-12 sm:w-12 grid place-items-center rounded-full bg-[#3A2025]/90 text-white hover:bg-[#6B2638] border border-white/20 transition shadow-xl active:scale-90"
               title="Next Design (Right Arrow)"
+              aria-label="Next"
             >
               ›
             </button>
           </div>
 
           {/* Lightbox Footer Info & Direct WhatsApp Inquiry */}
-          <div className="max-w-4xl mx-auto w-full bg-black/60 backdrop-blur-md rounded-2xl p-4 ring-1 ring-white/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-white z-10">
-            <div>
-              <span className="text-[11px] text-[#e8c85a] uppercase font-semibold tracking-wider">
+          <div className="max-w-4xl mx-auto w-full bg-[#3A2025]/95 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 ring-1 ring-[#D8C19A]/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-white z-20 shrink-0">
+            <div className="text-left w-full sm:w-auto">
+              <span className="text-[10px] sm:text-[11px] text-[#D8C19A] uppercase font-semibold tracking-wider">
                 {activeItem.cat} Design Details
               </span>
-              <h3 className="font-serif-display text-lg sm:text-xl text-white mt-0.5">
+              <h3 className="font-serif-display text-base sm:text-lg text-white mt-0.5">
                 {activeItem.title}
               </h3>
               {activeItem.desc && (
-                <p className="text-xs sm:text-sm text-white/80 font-light mt-1 max-w-xl">
+                <p className="text-xs text-white/80 font-light mt-0.5 max-w-xl line-clamp-2 sm:line-clamp-none">
                   {activeItem.desc}
                 </p>
               )}
             </div>
 
-            <a
-              href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(
-                `Hi! I saw the design "${activeItem.title}" in your website gallery. Can I get a price quote and delivery date for this work?`
-              )}`}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#20ba59] active:scale-95 transition shadow-lg"
-            >
-              <span>Inquire This Design on WhatsApp</span>
-              <span>💬</span>
-            </a>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                onClick={closeLightbox}
+                className="sm:hidden px-4 py-2.5 rounded-full bg-white/15 text-xs text-white font-medium hover:bg-white/25 active:scale-95 transition"
+              >
+                ✕ Close
+              </button>
+              <a
+                href={`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(
+                  `Hi! I saw the design "${activeItem.title}" in your website gallery. Can I get a price quote and delivery date for this work?`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#20ba59] active:scale-95 transition shadow-lg"
+              >
+                <span>Inquire on WhatsApp</span>
+                <span>💬</span>
+              </a>
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
