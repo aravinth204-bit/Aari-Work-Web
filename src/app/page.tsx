@@ -16,7 +16,7 @@ export default function Home() {
       <FloatingActions />
 
       {/* HERO */}
-      <section className="relative min-h-[92vh] flex items-center overflow-hidden bg-[#F8F3EC]">
+      <section className="relative min-h-[100dvh] flex items-center overflow-hidden bg-[#3A2025]">
         {/* Background Video */}
         <video
           autoPlay
@@ -25,7 +25,7 @@ export default function Home() {
           playsInline
           preload="metadata"
           poster="/images/hero_aari_artisan.jpg"
-          className="absolute inset-0 w-full h-full object-cover object-[75%_center] md:object-center motion-reduce:hidden"
+          className="absolute inset-0 w-full h-full object-cover object-center motion-reduce:hidden"
         >
           <source src="/videos/hero_background.mp4" type="video/mp4" />
         </video>
@@ -37,7 +37,7 @@ export default function Home() {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[75%_center] md:object-center -z-20 hidden motion-reduce:block"
+          className="object-cover object-center -z-20 hidden motion-reduce:block"
         />
 
         {/* Premium Subtle Deep Burgundy Overlay (#3A2025) */}
@@ -72,6 +72,14 @@ export default function Home() {
         </div>
       </section>
 
+      {/* RECENT WORKS (GALLERY) */}
+      <Section id="gallery" bg="bg-[#F8F3EC]" eyebrow="Portfolio" title="Our Recent Works">
+        <Gallery />
+      </Section>
+
+      {/* Decorative Thread 1: Between Recent Works & About */}
+      <ThreadDivider variant="curve-right" className="bg-[#F8F3EC]" />
+
       {/* ABOUT */}
       <Section
         id="about"
@@ -104,16 +112,22 @@ export default function Home() {
             </div>
           </Reveal>
           <Reveal delay={120}>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#6B2638] px-3.5 py-1 text-xs font-semibold text-[#D8C19A] mb-3 ring-1 ring-[#D8C19A]/40 shadow-sm">
+              <span>🪡 Designed & Crafted by {site.owner}</span>
+            </div>
+            <h3 className="font-serif-display text-2xl text-[#3A2025] font-bold mb-3">
+              Meet {site.owner} ({site.designerTitle})
+            </h3>
             <p className="text-[#3A2025]/85 leading-relaxed">
-              {site.name} started as a small home studio in {site.city} with one aari frame and a lot of
-              passion. Indha 12 varusathula 2500+ brides and families namma work-a nambi irukanga.
+              {site.name} was founded by <strong className="text-[#6B2638] font-semibold">{site.owner}</strong> as a passionate handmade studio in {site.city}. 
+              With an eye for traditional artistry and custom perfection, {site.owner} and her team have crafted 2500+ dream bridal blouses for brides across South India.
             </p>
             <p className="mt-4 text-[#3A2025]/85 leading-relaxed">
-              Ella blouse-um kai-yaala, quality thread, original stones and beads vechu pannuvom.
-              Machine-la avasarama mudikura velai illa — neat finishing dhaan namma identity.
+              Every blouse is personally designed by <strong className="text-[#3A2025]">{site.owner}</strong> using premium threads, original Kundan stones, and metallic zardosi. 
+              Machine-la avasarama mudikura velai illa — {site.owner}-in neat finishing dhaan namma identity!
             </p>
             <ul className="mt-6 space-y-2 text-sm">
-              {["100% handmade aari & maggam work", "Free fitting trial for local customers", "All-India courier available", "Design confidentiality guaranteed"].map((x) => (
+              {["100% handmade aari & maggam work by Mithanya's team", "Free fitting trial for local customers", "All-India courier available", "Design confidentiality guaranteed"].map((x) => (
                 <li key={x} className="flex gap-2 text-[#3A2025]/90">
                   <span className="text-[#B08A57]">✦</span>
                   {x}
@@ -124,8 +138,8 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* Decorative Thread 1: Between About & Services */}
-      <ThreadDivider variant="curve-right" className="bg-[#FFFFFF]" />
+      {/* Decorative Thread 2: Between About & Services */}
+      <ThreadDivider variant="curve-left" className="bg-[#F8F3EC]" />
 
       {/* SERVICES */}
       <Section id="services" bg="bg-[#F1E7DC]" eyebrow="What We Do" title="Our Services">
@@ -151,11 +165,6 @@ export default function Home() {
             </Reveal>
           ))}
         </div>
-      </Section>
-
-      {/* GALLERY */}
-      <Section id="gallery" bg="bg-[#F8F3EC]" eyebrow="Our Work" title="Design Gallery">
-        <Gallery />
       </Section>
 
       {/* Decorative Thread 2: Around Process Transition */}
@@ -346,7 +355,7 @@ export default function Home() {
         </Reveal>
 
         <div className="relative z-10 border-t border-[#B08A57]/20 py-5 text-center text-xs text-[#F8F3EC]/70 pb-20 md:pb-5">
-          © {new Date().getFullYear()} {site.name}. All rights reserved.
+          © {new Date().getFullYear()} {site.name} by {site.owner}. All rights reserved.
         </div>
       </footer>
     </main>

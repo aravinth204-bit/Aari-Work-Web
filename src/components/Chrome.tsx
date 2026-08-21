@@ -6,8 +6,9 @@ import { site, faqs } from "@/lib/site";
 
 const links = [
   ["Home", "#home"],
+  ["Recent Works", "#gallery"],
+  ["About Us", "#about"],
   ["Services", "#services"],
-  ["Gallery", "#gallery"],
   ["Process", "#process"],
   ["Reviews", "#reviews"],
   ["Contact", "#contact"],

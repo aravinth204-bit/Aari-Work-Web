@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { gallery as defaultGallery, GalleryItem, site } from "@/lib/site";
+import Reveal from "@/components/Reveal";
 
 export default function Gallery() {
   const [items, setItems] = useState<GalleryItem[]>(defaultGallery);
@@ -124,48 +125,50 @@ export default function Gallery() {
       {/* Grid Layout: 3 Columns Desktop (3 top + 3 bottom = 6 initial) */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         {displayedItems.map((g, index) => (
-          <div
-            key={g.id || `${g.src}-${index}`}
-            onClick={() => openLightbox(index)}
-            className="group relative cursor-pointer overflow-hidden rounded-3xl aspect-[3/4] bg-[#FFFFFF] shadow-sm ring-1 ring-[#D8C19A] hover:ring-2 hover:ring-[#B08A57] hover:shadow-xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
-          >
-            <Image
-              src={g.src}
-              alt={g.title}
-              fill
-              sizes="(max-width: 768px) 50vw, 33vw"
-              className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] motion-reduce:group-hover:scale-100"
-            />
-            {/* Dark gradient overlay with subtle burgundy brand tint on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#3A2025]/85 via-[#3A2025]/25 to-transparent transition-opacity duration-500 opacity-70 group-hover:opacity-85" />
-            <div className="absolute inset-0 bg-[#6B2638]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          <Reveal key={g.id || `${g.src}-${index}`} delay={(index % 6) * 120}>
+            <div
+              onClick={() => openLightbox(index)}
+              className="group relative cursor-pointer overflow-hidden rounded-3xl aspect-[3/4] bg-[#FFFFFF] shadow-sm ring-1 ring-[#D8C19A] hover:ring-2 hover:ring-[#B08A57] hover:shadow-xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            >
+              <Image
+                src={g.src}
+                alt={g.title}
+                fill
+                sizes="(max-width: 768px) 50vw, 33vw"
+                className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] motion-reduce:group-hover:scale-100 will-change-transform"
+                style={{ transform: "translate3d(0, 0, 0)" }}
+              />
+              {/* Dark gradient overlay with subtle burgundy brand tint on hover */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#3A2025]/85 via-[#3A2025]/25 to-transparent transition-opacity duration-500 opacity-70 group-hover:opacity-85" />
+              <div className="absolute inset-0 bg-[#6B2638]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-            {/* Top Category Badge */}
-            <span className="absolute top-3 left-3 rounded-full bg-[#3A2025]/80 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-medium text-[#D8C19A] ring-1 ring-[#D8C19A]/30 group-hover:ring-[#B08A57]/60 transition-all duration-500">
-              {g.cat}
-            </span>
-
-            {/* Click to Zoom Hint Icon */}
-            <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full bg-[#6B2638]/90 p-2 text-white text-xs shadow-md">
-              🔍 Zoom
-            </span>
-
-            {/* Title & Info */}
-            <div className="absolute inset-x-0 bottom-0 p-4 text-left text-white z-10">
-              <h4 className="font-serif-display text-base md:text-lg text-white leading-tight drop-shadow-sm">
-                {g.title}
-              </h4>
-              {g.desc && (
-                <p className="mt-1 text-xs text-white/80 line-clamp-2 font-light drop-shadow-xs">
-                  {g.desc}
-                </p>
-              )}
-              <span className="mt-2 inline-flex items-center gap-1 text-[11px] text-[#D8C19A] font-medium group-hover:text-white transition-colors duration-500">
-                <span>View High-Res Work</span>
-                <span>→</span>
+              {/* Top Category Badge */}
+              <span className="absolute top-3 left-3 rounded-full bg-[#3A2025]/80 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-medium text-[#D8C19A] ring-1 ring-[#D8C19A]/30 group-hover:ring-[#B08A57]/60 transition-all duration-500">
+                {g.cat}
               </span>
+
+              {/* Click to Zoom Hint Icon */}
+              <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full bg-[#6B2638]/90 p-2 text-white text-xs shadow-md">
+                🔍 Zoom
+              </span>
+
+              {/* Title & Info */}
+              <div className="absolute inset-x-0 bottom-0 p-4 text-left text-white z-10">
+                <h4 className="font-serif-display text-base md:text-lg text-white leading-tight drop-shadow-sm">
+                  {g.title}
+                </h4>
+                {g.desc && (
+                  <p className="mt-1 text-xs text-white/80 line-clamp-2 font-light drop-shadow-xs">
+                    {g.desc}
+                  </p>
+                )}
+                <span className="mt-2 inline-flex items-center gap-1 text-[11px] text-[#D8C19A] font-medium group-hover:text-white transition-colors duration-500">
+                  <span>View High-Res Work</span>
+                  <span>→</span>
+                </span>
+              </div>
             </div>
-          </div>
+          </Reveal>
         ))}
       </div>
 

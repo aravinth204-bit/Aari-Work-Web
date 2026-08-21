@@ -1,5 +1,7 @@
 export const site = {
   name: "Tales by Threads",
+  owner: "Mithanya",
+  designerTitle: "Founder & Master Artisan",
   tagline: "Handcrafted Aari & Maggam Work",
   city: "Gobichettipalayam",
   phone: "+919876543210",
@@ -69,20 +71,77 @@ export interface GalleryItem {
 }
 
 export const gallery: GalleryItem[] = [
-  { id: "g1", src: "/images/img-2.png", cat: "Bridal", title: "Peacock Zardosi Bridal Blouse", desc: "Heavy gold zardosi embroidery with handcrafted peacock motifs & stone embellishments." },
-  { id: "g2", src: "/images/img-3.png", cat: "Party Wear", title: "Pastel Mirror & Kundan Work", desc: "Elegant pastel silk blouse embellished with crystal mirrors and Kundan stones." },
-  { id: "g3", src: "/images/img-4.png", cat: "Minimal", title: "Neat Chain Stitch Neckline", desc: "Subtle & classy handcrafted threadwork for office and light saree occasions." },
-  { id: "g4", src: "/images/img-5.png", cat: "Custom Work", title: "3D Layered Cutwork Pattern", desc: "Modern structural cutwork design with gold thread outlines and bead highlights." },
-  { id: "g5", src: "/images/img-6.png", cat: "Kids Wear", title: "Royal Kids Frock Embroidery", desc: "Custom handcrafted embroidery work for children's birthday frocks & pattu pavadai." },
-  { id: "g6", src: "/images/img-7.png", cat: "Saree Work", title: "Maggam Saree Pallu & Borders", desc: "Heavy metallic gold thread maggam work embellishments for bridal silk sarees." },
-  { id: "g7", src: "/images/Img-1.png", cat: "Bridal", title: "Grand Bridal Back Neck Motif", desc: "Rich temple motif Aari work crafted with original stones and zari threads." },
-  { id: "g8", src: "/images/hero_aari_artisan.jpg", cat: "Artisan Work", title: "Handmade Frame Needlework", desc: "Live artisan needlework on traditional wooden frame with precision detailing." },
-  { id: "g9", src: "/images/hero_aari_work.jpg", cat: "Party Wear", title: "Floral Thread & Bead Sleeves", desc: "Intricate floral vines and bead clusters covering full elbow sleeves." },
-  { id: "g10", src: "/images/Home.png", cat: "Bridal", title: "Traditional Bridal Zari Border", desc: "Classic South Indian bridal saree blouse embellishment with high stone density." },
-  { id: "g11", src: "/images/img-2.png", cat: "Saree Work", title: "Elephant Motif Maggam Blouse", desc: "Royal heritage elephant motif embroidery in antique gold wire." },
-  { id: "g12", src: "/images/img-3.png", cat: "Minimal", title: "Geometric Elbow Sleeve Border", desc: "Clean geometric threadwork border tailored for daily festive wear." },
+  {
+    id: "g1",
+    src: "/images/Bridal blouse design.jpg",
+    cat: "Aari Work",
+    title: "Bridal Elephant & Floral Aari Blouse",
+    desc: "Exquisite handmade bridal blouse with gold zari thread, stone embellishments & detailed neck border.",
+  },
+  {
+    id: "g2",
+    src: "/images/Aari work.jpg",
+    cat: "Aari Work",
+    title: "Grand Peacock Motif Back Neck",
+    desc: "Rich peacock embroidery motif with metallic thread accents and crystal stone highlights.",
+  },
+  {
+    id: "g3",
+    src: "/images/Hand work.jpg",
+    cat: "Zardosi Work",
+    title: "Royal Gold Zardosi Sleeve Work",
+    desc: "Heavy antique gold zardosi embroidery with intricate bead clusters and traditional motifs.",
+  },
+  {
+    id: "g4",
+    src: "/images/download.jpg",
+    cat: "Stone & Kundan Work",
+    title: "Kundan & Mirror Work Blouse",
+    desc: "Sparkling Kundan stone work integrated with fine silk thread borders for wedding receptions.",
+  },
+  {
+    id: "g5",
+    src: "/images/download (1).jpg",
+    cat: "Embroidery",
+    title: "Floral Threadwork Elbow Sleeve",
+    desc: "Delicate floral vines and leaf embroidery patterns tailored for silk sarees.",
+  },
+  {
+    id: "g6",
+    src: "/images/download (2).jpg",
+    cat: "Brooches Work",
+    title: "Designer Motif Brooch Attachment",
+    desc: "Handcrafted 3D motif brooch accent with hanging bead droplets and zari highlights.",
+  },
+  {
+    id: "g7",
+    src: "/images/download (3).jpg",
+    cat: "Cut Work & Patch Work",
+    title: "Layered Cutwork Neck Line",
+    desc: "Precision structural cutwork pattern with gold thread framing & neat finishing.",
+  },
+  {
+    id: "g8",
+    src: "/images/download (4).jpg",
+    cat: "Aari Work",
+    title: "Heavy Maggam Bridal Sleeve Design",
+    desc: "Dense gold thread maggam work detailing crafted for grand bridal sarees.",
+  },
+  {
+    id: "g9",
+    src: "/images/download (5).jpg",
+    cat: "Zardosi Work",
+    title: "Classic Mango Motif Back Design",
+    desc: "Traditional paisley (mango) motif Aari needlework with copper-gold zari lines.",
+  },
+  {
+    id: "g10",
+    src: "/images/Aari Work Designs-Affordable Price Range ➡️From Rs_500_- DM in Instagram⬇️ sunshine_fashion_and_aari.jpg",
+    cat: "Stone & Kundan Work",
+    title: "Affordable Custom Aari Design",
+    desc: "Classy & budget-friendly handcrafted Aari work with clean finishing.",
+  },
 ];
-
 
 export const testimonials = [
   {
