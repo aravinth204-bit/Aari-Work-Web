@@ -1,3 +1,5 @@
+const address = "Vellankovil, Gobichettipalayam, Erode";
+
 export const site = {
   name: "Tales by Threads",
   owner: "Mithanya",
@@ -8,10 +10,9 @@ export const site = {
   phoneDisplay: "+91 98765 43210",
   whatsapp: "919876543210",
   instagram: "https://instagram.com",
-  address: "Vellankovil, Gobichettipalayam, Erode",
+  address,
   timings: "Mon – Sat, 9:30 AM – 8:00 PM",
-  mapEmbed:
-    "https://www.google.com/maps?q=R.S.Puram,Coimbatore&output=embed",
+  mapEmbed: `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`,
 };
 
 export const workTypes = [

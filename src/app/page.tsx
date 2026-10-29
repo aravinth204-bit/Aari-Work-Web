@@ -5,75 +5,33 @@ import Reveal from "@/components/Reveal";
 import InteractiveProcess from "@/components/InteractiveProcess";
 import Preloader from "@/components/Preloader";
 import ThreadDivider from "@/components/ThreadDivider";
+import SmartVideo from "@/components/SmartVideo";
+import Hero from "@/components/Hero";
+import ServiceIcon from "@/components/ServiceIcon";
 import { Header, Faqs, FloatingActions } from "@/components/Chrome";
 import { site, services, testimonials } from "@/lib/site";
 
+const footerLinks = [
+  { label: "Home", href: "#home" },
+  { label: "Recent Works", href: "#gallery" },
+  { label: "About Us", href: "#about" },
+  { label: "Services", href: "#services" },
+  { label: "Process", href: "#process" },
+  { label: "Reviews", href: "#reviews" },
+  { label: "Enquiry", href: "#enquiry" },
+];
+
 export default function Home() {
   return (
-    <main id="home">
+    <main id="home" tabIndex={-1} className="focus:outline-none">
       <Preloader />
       <Header />
       <FloatingActions />
 
-      {/* HERO */}
-      <section className="relative min-h-[100dvh] flex items-center overflow-hidden bg-[#3A2025]">
-        {/* Background Video */}
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="metadata"
-          poster="/images/hero_aari_artisan.jpg"
-          className="absolute inset-0 w-full h-full object-cover object-center motion-reduce:hidden"
-        >
-          <source src="/videos/hero_background.mp4" type="video/mp4" />
-        </video>
-
-        {/* Fallback Image for Reduced Motion */}
-        <Image
-          src="/images/hero_aari_artisan.jpg"
-          alt="Handcrafted Aari Work Embroidery Artisan"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center -z-20 hidden motion-reduce:block"
-        />
-
-        {/* Premium Subtle Deep Burgundy Overlay (#3A2025) */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#3A2025]/80 via-[#3A2025]/35 to-[#3A2025]/20 md:bg-gradient-to-r md:from-[#3A2025]/85 md:via-[#3A2025]/30 md:to-[#3A2025]/15 z-0" />
-
-        <div className="relative mx-auto max-w-6xl px-4 pt-32 pb-20 text-white z-10">
-          <span className="hero-animate-eyebrow inline-block rounded-full border border-[#B08A57]/80 bg-[#3A2025]/60 backdrop-blur-md px-3.5 py-1 text-xs tracking-widest text-[#D8C19A] shadow-md">
-            ✨ HANDMADE AARI WORK STUDIO
-          </span>
-          <h1 className="hero-animate-heading font-serif-display mt-4 text-3xl sm:text-5xl md:text-6xl leading-tight max-w-xl drop-shadow-md">
-            Handcrafted <span className="text-[#D8C19A]">Aari Work</span> Blouses
-          </h1>
-          <p className="hero-animate-paragraph mt-3 max-w-md text-white/90 text-sm sm:text-base font-light drop-shadow-sm">
-            Exclusive Bridal & Party Wear Embroidery • Perfect Fitting
-          </p>
-          <div className="mt-6 hidden md:flex flex-wrap gap-3">
-            <a
-              href="#enquiry"
-              className="hero-animate-cta-primary cta-shimmer rounded-full bg-[#6B2638] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#541D2B] transition shadow-md active:scale-95"
-            >
-              <span>Enquiry</span>
-            </a>
-            <a
-              href={`https://wa.me/${site.whatsapp}`}
-              target="_blank"
-              rel="noreferrer"
-              className="hero-animate-cta-secondary rounded-full border border-white/60 bg-[#3A2025]/30 backdrop-blur-sm px-6 py-2.5 text-sm font-medium hover:bg-[#6B2638] hover:border-[#6B2638] transition shadow-md active:scale-95"
-            >
-              WhatsApp
-            </a>
-          </div>
-        </div>
-      </section>
+      <Hero />
 
       {/* RECENT WORKS (GALLERY) */}
-      <Section id="gallery" bg="bg-[#F8F3EC]" eyebrow="Portfolio" title="Our Recent Works">
+      <Section id="gallery" bg="bg-[#F8F3EC]" eyebrow="Recent work" title="A few from the studio">
         <Gallery />
       </Section>
 
@@ -84,8 +42,8 @@ export default function Home() {
       <Section
         id="about"
         bg="bg-[#FFFFFF]"
-        eyebrow="About Us"
-        title="Thread by Thread, Made with Love"
+        eyebrow="The studio"
+        title="Thread by thread, made with love"
         pattern={
           <div className="absolute top-4 right-4 w-44 h-44 opacity-[0.04] pointer-events-none text-[#B08A57]">
             <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1">
@@ -99,24 +57,19 @@ export default function Home() {
         <div className="grid md:grid-cols-2 gap-10 items-center">
           <Reveal>
             <div className="relative aspect-[4/3] rounded-3xl overflow-hidden ring-1 ring-[#D8C19A] shadow-lg bg-[#3A2025]">
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
+              <SmartVideo
+                src="/videos/video-1.mp4"
+                poster="/images/Img-1.webp"
                 className="w-full h-full object-cover"
-                poster="/images/Img-1.png"
-              >
-                <source src="/videos/video-1.mp4" type="video/mp4" />
-              </video>
+              />
             </div>
           </Reveal>
           <Reveal delay={120}>
             <div className="inline-flex items-center gap-2 rounded-full bg-[#6B2638] px-3.5 py-1 text-xs font-semibold text-[#D8C19A] mb-3 ring-1 ring-[#D8C19A]/40 shadow-sm">
-              <span>🪡 Designed & Crafted by {site.owner}</span>
+              <span>Designed &amp; crafted by {site.owner}</span>
             </div>
             <h3 className="font-serif-display text-2xl text-[#3A2025] font-bold mb-3">
-              Meet {site.owner} ({site.designerTitle})
+              Meet {site.owner}, founder &amp; master artisan
             </h3>
             <p className="text-[#3A2025]/85 leading-relaxed">
               {site.name} was founded by <strong className="text-[#6B2638] font-semibold">{site.owner}</strong> as a passionate handmade studio in {site.city}. 
@@ -129,7 +82,7 @@ export default function Home() {
             <ul className="mt-6 space-y-2 text-sm">
               {["100% handmade aari & maggam work by Mithanya's team", "Free fitting trial for local customers", "All-India courier available", "Design confidentiality guaranteed"].map((x) => (
                 <li key={x} className="flex gap-2 text-[#3A2025]/90">
-                  <span className="text-[#B08A57]">✦</span>
+                  <span className="text-gold-deep" aria-hidden="true">✦</span>
                   {x}
                 </li>
               ))}
@@ -142,26 +95,29 @@ export default function Home() {
       <ThreadDivider variant="curve-left" className="bg-[#F8F3EC]" />
 
       {/* SERVICES */}
-      <Section id="services" bg="bg-[#F1E7DC]" eyebrow="What We Do" title="Our Services">
+      <Section id="services" bg="bg-[#F1E7DC]" eyebrow="What we make" title="Aari work, by the piece">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {services.map((s, i) => (
             <Reveal key={s.title} delay={i * 70}>
-              <div className="group h-full rounded-3xl bg-[#FFFFFF] p-6 ring-1 ring-[#D8C19A]/60 hover:ring-[#B08A57]/60 shadow-sm hover:shadow-md transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 motion-reduce:hover:translate-y-0 flex flex-col justify-between">
+              <a
+                href="#enquiry"
+                className="group h-full rounded-3xl bg-[#FFFFFF] p-6 ring-1 ring-[#D8C19A]/60 hover:ring-[#B08A57]/60 shadow-sm hover:shadow-md transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 motion-reduce:hover:translate-y-0 flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F1E7DC]"
+              >
                 <div>
                   <div className="overflow-hidden rounded-2xl inline-block transition-transform duration-450 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] motion-reduce:group-hover:scale-100">
-                    <span className="text-3xl inline-block">{s.icon}</span>
+                    <ServiceIcon title={s.title} className="h-9 w-9 text-[#6B2638]" />
                   </div>
                   <h3 className="mt-4 font-serif-display text-xl text-[#3A2025]">{s.title}</h3>
                   <p className="mt-2 text-sm text-[#3A2025]/75 leading-relaxed">{s.desc}</p>
                 </div>
                 <div className="mt-5 flex items-center justify-between">
-                  <p className="text-sm font-medium text-[#B08A57]">{s.price}</p>
+                  <p className="text-sm font-medium text-gold-deep">{s.price}</p>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#6B2638] transition-transform duration-350 ease-out group-hover:translate-x-1 motion-reduce:group-hover:translate-x-0">
-                    <span>Explore</span>
-                    <span>→</span>
+                    <span>Get a quote</span>
+                    <span aria-hidden="true">→</span>
                   </span>
                 </div>
-              </div>
+              </a>
             </Reveal>
           ))}
         </div>
@@ -174,8 +130,8 @@ export default function Home() {
       <Section
         id="process"
         bg="bg-[#FFFFFF]"
-        eyebrow="How It Works"
-        title="Simple 4 Step Process"
+        eyebrow="How it works"
+        title="Four steps, no surprises"
         pattern={
           <div className="absolute bottom-4 left-4 w-48 h-48 opacity-[0.04] pointer-events-none text-[#B08A57]">
             <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1">
@@ -190,7 +146,7 @@ export default function Home() {
       </Section>
 
       {/* REVIEWS */}
-      <Section id="reviews" bg="bg-[#F1E7DC]" eyebrow="Happy Customers" title="What They Say">
+      <Section id="reviews" bg="bg-[#F1E7DC]" eyebrow="In their words" title="What brides say">
         <div className="grid md:grid-cols-3 gap-5">
           {testimonials.map((t, i) => (
             <Reveal key={t.name} delay={i * 90}>
@@ -202,8 +158,8 @@ export default function Home() {
 
                 <div>
                   {/* Spaced Out 5 Gold Stars */}
-                  <div className="flex items-center gap-1 text-[#B08A57] text-sm tracking-wider">
-                    ★ ★ ★ ★ ★
+                  <div className="flex items-center gap-1 text-gold-deep text-sm tracking-wider" aria-label="Rated 5 out of 5">
+                    <span aria-hidden="true">★ ★ ★ ★ ★</span>
                   </div>
                   <p className="mt-3.5 text-sm text-[#3A2025]/85 leading-relaxed">“{t.text}”</p>
                 </div>
@@ -214,7 +170,7 @@ export default function Home() {
                   </span>
                   <div className="text-sm">
                     <div className="font-medium text-[#3A2025]">{t.name}</div>
-                    <div className="text-xs text-[#3A2025]/60">{t.place}</div>
+                    <div className="text-xs text-[#3A2025]/70">{t.place}</div>
                   </div>
                 </div>
               </div>
@@ -238,15 +194,26 @@ export default function Home() {
 
         <div className="relative z-10 mx-auto max-w-6xl px-4 grid lg:grid-cols-2 gap-10 items-start">
           <Reveal>
-            <span className="text-xs tracking-[0.25em] text-[#B08A57] font-semibold">GET IN TOUCH</span>
-            <h2 className="font-serif-display text-3xl md:text-4xl text-[#3A2025] mt-2">Book Your Blouse</h2>
+            <span className="text-xs font-medium tracking-[0.16em] text-gold-deep">Get in touch</span>
+            <h2 className="font-serif-display text-3xl md:text-4xl text-[#3A2025] mt-2">Book your blouse</h2>
             <p className="mt-4 text-[#3A2025]/80 leading-relaxed max-w-md">
               Ungal aari work blouse order-a register pannunga. Form submit panna udane, namma team call / WhatsApp-la contact pannuvanga. Enquiry ku charge illa.
             </p>
             <div className="mt-8 space-y-3 text-sm text-[#3A2025]">
-              <p>📞 <a href={`tel:${site.phone}`} className="underline hover:text-[#6B2638]">{site.phoneDisplay}</a></p>
-              <p>📍 {site.address}</p>
-              <p>🕘 {site.timings}</p>
+              <p><a href={`tel:${site.phone}`} className="underline hover:text-[#6B2638]">{site.phoneDisplay}</a></p>
+              <p>{site.address}</p>
+              <p>{site.timings}</p>
+            </div>
+            <div className="mt-6 overflow-hidden rounded-2xl ring-1 ring-[#D8C19A] shadow-sm">
+              <iframe
+                title={`${site.name} location map`}
+                src={site.mapEmbed}
+                width="100%"
+                height="220"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="block w-full border-0"
+              />
             </div>
           </Reveal>
           <Reveal delay={100}>
@@ -256,7 +223,7 @@ export default function Home() {
       </section>
 
       {/* FAQ */}
-      <Section id="faq" bg="bg-[#FFFFFF]" eyebrow="Doubts?" title="Frequently Asked Questions">
+      <Section id="faq" bg="bg-[#FFFFFF]" eyebrow="Good to know" title="Questions, answered">
         <Reveal delay={80} className="max-w-3xl mx-auto">
           <Faqs />
         </Reveal>
@@ -289,7 +256,7 @@ export default function Home() {
               />
               <div>
                 <h3 className="font-serif-display text-xl text-[#F8F3EC] leading-tight">{site.name}</h3>
-                <p className="text-[11px] text-[#B08A57] tracking-wider uppercase">Aari Embroidery</p>
+                <p className="text-[11px] text-[#B08A57]">Aari embroidery</p>
               </div>
             </div>
             <p className="mt-3 text-sm text-[#F8F3EC]/80 leading-relaxed">{site.tagline} in {site.city}.</p>
@@ -323,13 +290,13 @@ export default function Home() {
 
           {/* Column 2: Quick Links */}
           <div>
-            <p className="text-[#B08A57] font-medium text-xs tracking-widest uppercase mb-3">Quick Links</p>
+            <p className="text-[#B08A57] font-medium text-xs mb-3">Quick links</p>
             <ul className="space-y-2 text-sm text-[#F8F3EC]/80">
-              {["Home", "Services", "Gallery", "Process", "Reviews", "Enquiry"].map((item) => (
-                <li key={item}>
-                  <a href={`#${item.toLowerCase()}`} className="hover:text-[#B08A57] transition-colors duration-300 flex items-center gap-1.5">
+              {footerLinks.map((item) => (
+                <li key={item.href}>
+                  <a href={item.href} className="hover:text-[#B08A57] transition-colors duration-300 flex items-center gap-1.5">
                     <span className="text-[#B08A57] text-xs">›</span>
-                    <span>{item}</span>
+                    <span>{item.label}</span>
                   </a>
                 </li>
               ))}
@@ -338,19 +305,12 @@ export default function Home() {
 
           {/* Column 3: Contact Info */}
           <div className="text-sm space-y-3 text-[#F8F3EC]/80">
-            <p className="text-[#B08A57] font-medium text-xs tracking-widest uppercase mb-1">Contact Us</p>
-            <p className="flex items-start gap-2">
-              <span className="shrink-0 mt-0.5">📍</span>
-              <span>{site.address}</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <span className="shrink-0">📞</span>
+            <p className="text-[#B08A57] font-medium text-xs mb-1">Contact us</p>
+            <p>{site.address}</p>
+            <p>
               <a href={`tel:${site.phone}`} className="hover:text-[#B08A57] transition-colors duration-300">{site.phoneDisplay}</a>
             </p>
-            <p className="flex items-center gap-2">
-              <span className="shrink-0">🕘</span>
-              <span>{site.timings}</span>
-            </p>
+            <p>{site.timings}</p>
           </div>
         </Reveal>
 
@@ -378,13 +338,15 @@ function Section({
   pattern?: React.ReactNode;
 }) {
   return (
-    <section id={id} className={`relative py-20 ${bg} overflow-hidden`}>
+    <section id={id} className={`relative py-20 md:py-28 ${bg} overflow-hidden`}>
       {pattern}
       <div className="relative z-10 mx-auto max-w-6xl px-4">
-        <Reveal className="text-center mb-12">
-          <span className="text-xs tracking-[0.25em] text-[#B08A57] font-semibold">{eyebrow.toUpperCase()}</span>
-          <h2 className="font-serif-display text-3xl md:text-4xl text-[#3A2025] mt-2">{title}</h2>
-          <div className="gold-line h-px w-40 mx-auto mt-4" />
+        <Reveal className="mb-10 md:mb-14">
+          <p className="text-xs font-medium tracking-[0.16em] text-gold-deep">{eyebrow}</p>
+          <div className="mt-3 flex items-end justify-between gap-8">
+            <h2 className="font-serif-display text-3xl md:text-4xl text-[#3A2025] max-w-2xl">{title}</h2>
+            <div className="stitch-rule hidden sm:block mb-2 h-0.5 w-24 shrink-0" aria-hidden="true" />
+          </div>
         </Reveal>
         {children}
       </div>

@@ -1,9 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { site } from "@/lib/site";
+import { useMounted } from "@/lib/use-mounted";
+import { useFocusTrap } from "@/lib/use-focus-trap";
+import SmartVideo from "@/components/SmartVideo";
 
 export interface StepItem {
   n: string;
@@ -38,7 +41,7 @@ export const processSteps: StepItem[] = [
     d: "Studio-க்கு நேரில் வரலாம் அல்லது எங்கள் WhatsApp Measurement Chart மூலமாக துல்லியமான அளவுகள் தரலாம்.",
     mediaType: "video",
     mediaSrc: "/videos/step-2.mp4",
-    poster: "/images/img-4.png",
+    poster: "/images/img-4.webp",
     badge: "Step 02 • Precision Fit",
     icon: "📏",
     highlightText: "100% Perfect fitting guarantee - Local customers-ku oru trial free!",
@@ -50,7 +53,7 @@ export const processSteps: StepItem[] = [
     d: "அனுபவம் வாய்ந்த கலைஞர்கள் கையால் நுணுக்கமாக தைப்பார்கள். WhatsApp-ல் Work Progress Photo Updates அனுப்புவோம்.",
     mediaType: "video",
     mediaSrc: "/videos/step-3.mp4",
-    poster: "/images/Img-1.png",
+    poster: "/images/Img-1.webp",
     badge: "Step 03 • Live Stitching",
     icon: "🪡",
     highlightText: "Live artisan needlework on wooden frame with original beads, stones & zari.",
@@ -73,11 +76,14 @@ export default function InteractiveProcess() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [modalStepIndex, setModalStepIndex] = useState<number | null>(null);
   const [isMuted, setIsMuted] = useState(true);
-  const [mounted, setMounted] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+  const mounted = useMounted();
+  const dialogRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const closeProcessModal = useCallback(() => setModalStepIndex(null), []);
+
+  useFocusTrap(dialogRef, modalStepIndex !== null, closeProcessModal);
 
   // Lock body scroll when process modal is open
   useEffect(() => {
@@ -91,13 +97,17 @@ export default function InteractiveProcess() {
     };
   }, [modalStepIndex]);
 
-  // Auto-play step timer for desktop preview
+  // Auto-play step timer for desktop preview. Pauses on hover, while the modal
+  // is open, when the visitor turns it off, and for reduced-motion visitors.
   useEffect(() => {
+    if (!autoPlay || isHovered || modalStepIndex !== null) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const timer = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % processSteps.length);
     }, 7000);
     return () => clearInterval(timer);
-  }, []);
+  }, [autoPlay, isHovered, modalStepIndex]);
 
   const activeStep = processSteps[activeIndex];
 
@@ -106,22 +116,22 @@ export default function InteractiveProcess() {
       {/* MOBILE VIEW: Vertical Story/Video Cards (matching reference layout) */}
       <div className="flex flex-col gap-6 lg:hidden">
         {processSteps.map((step, index) => (
-          <div
+          <a
             key={step.n}
-            onClick={() => setModalStepIndex(index)}
-            className="relative aspect-[3/4] sm:aspect-[4/5] w-full rounded-3xl overflow-hidden shadow-2xl ring-1 ring-[#D8C19A] bg-[#3A2025] cursor-pointer group"
+            href={step.mediaSrc}
+            onClick={(e) => {
+              e.preventDefault();
+              setModalStepIndex(index);
+            }}
+            aria-label={`Open step ${step.n}: ${step.t}`}
+            className="relative block w-full aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-[#D8C19A] bg-[#3A2025] cursor-pointer group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B08A57] focus-visible:ring-offset-2"
           >
             {/* Background Video */}
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
+            <SmartVideo
+              src={step.mediaSrc}
               poster={step.poster}
               className="w-full h-full object-cover"
-            >
-              <source src={step.mediaSrc} type="video/mp4" />
-            </video>
+            />
 
             {/* Dark Gradient Overlay for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#3A2025]/95 via-[#3A2025]/45 to-black/30" />
@@ -132,14 +142,14 @@ export default function InteractiveProcess() {
                 {step.n}
               </span>
               <span className="rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[11px] text-[#D8C19A] font-medium border border-white/20 shadow-md">
-                🔍 Tap to Expand
+                Tap to expand
               </span>
             </div>
 
             {/* Bottom Overlay: Category, Title, Subtitle & Explanation Text */}
             <div className="absolute inset-x-0 bottom-0 p-5 text-white z-10 text-left">
-              <span className="inline-block rounded-md bg-[#6B2638] px-2.5 py-0.5 text-[10px] uppercase tracking-wider font-semibold text-[#D8C19A] mb-1.5 ring-1 ring-[#D8C19A]/30">
-                STEP #{step.n} • {step.sub}
+              <span className="inline-block rounded-md bg-[#6B2638] px-2.5 py-0.5 text-[10px] font-semibold text-[#D8C19A] mb-1.5 ring-1 ring-[#D8C19A]/30">
+                Step {step.n} · {step.sub}
               </span>
               <h3 className="font-serif-display text-xl sm:text-2xl text-white font-bold leading-tight">
                 {step.t}
@@ -150,15 +160,21 @@ export default function InteractiveProcess() {
 
               <div className="mt-3.5 flex items-center justify-between text-xs text-[#D8C19A] font-medium pt-2.5 border-t border-white/15">
                 <span>{step.highlightText}</span>
-                <span className="text-base">→</span>
+                <span className="text-base" aria-hidden="true">→</span>
               </div>
             </div>
-          </div>
+          </a>
         ))}
       </div>
 
       {/* DESKTOP VIEW: 4 Step Interactive Stepper */}
-      <div className="hidden lg:grid lg:grid-cols-12 gap-8 items-center">
+      <div
+        className="hidden lg:grid lg:grid-cols-12 gap-8 items-center"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onFocus={() => setIsHovered(true)}
+        onBlur={() => setIsHovered(false)}
+      >
         {/* LEFT COLUMN: 4 Step Buttons / Interactive List */}
         <div className="lg:col-span-5 flex flex-col gap-3 relative">
           {/* Connecting Vertical Stepper Line */}
@@ -168,9 +184,11 @@ export default function InteractiveProcess() {
             const isActive = index === activeIndex;
             return (
               <button
+                type="button"
                 key={step.n}
+                aria-pressed={isActive}
                 onClick={() => setActiveIndex(index)}
-                className={`group relative text-left p-5 rounded-3xl border transition-all duration-300 z-10 flex items-start gap-4 ${
+                className={`group relative text-left p-5 rounded-3xl border transition-all duration-300 z-10 flex items-start gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2 ${
                   isActive
                     ? "bg-[#6B2638] text-white border-[#6B2638] shadow-xl scale-[1.02]"
                     : "bg-[#FFFFFF] text-[#3A2025] border-[#D8C19A] hover:border-[#B08A57] hover:bg-[#F1E7DC]"
@@ -191,13 +209,12 @@ export default function InteractiveProcess() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <span
-                      className={`text-[11px] uppercase tracking-wider font-semibold ${
-                        isActive ? "text-[#D8C19A]" : "text-[#B08A57]"
+                      className={`text-[11px] font-medium ${
+                        isActive ? "text-[#D8C19A]" : "text-gold-deep"
                       }`}
                     >
                       {step.sub}
                     </span>
-                    <span className="text-base">{step.icon}</span>
                   </div>
 
                   <h3
@@ -228,22 +245,14 @@ export default function InteractiveProcess() {
 
         {/* RIGHT COLUMN: Dynamic Media Display Screen */}
         <div className="lg:col-span-7">
-          <div
-            onClick={() => setModalStepIndex(activeIndex)}
-            className="relative aspect-[16/10] w-full rounded-3xl overflow-hidden shadow-2xl ring-1 ring-[#D8C19A] bg-[#3A2025] group cursor-pointer"
-          >
+          <div className="relative aspect-[16/10] w-full rounded-3xl overflow-hidden shadow-2xl ring-1 ring-[#D8C19A] bg-[#3A2025] group">
             {/* Dynamic Media rendering */}
-            <video
+            <SmartVideo
               key={activeStep.mediaSrc}
-              autoPlay
-              loop
-              muted
-              playsInline
+              src={activeStep.mediaSrc}
               poster={activeStep.poster}
               className="w-full h-full object-cover transition-all duration-700 animate-fadeIn"
-            >
-              <source src={activeStep.mediaSrc} type="video/mp4" />
-            </video>
+            />
 
             {/* Dark Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/20" />
@@ -251,16 +260,33 @@ export default function InteractiveProcess() {
             {/* Top Badge: Step Counter & Tag */}
             <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
               <span className="rounded-full bg-[#6B2638]/90 backdrop-blur-md px-3.5 py-1 text-xs font-semibold text-[#D8C19A] ring-1 ring-[#D8C19A]/40 shadow-md">
-                ✨ {activeStep.badge}
+                {activeStep.badge}
               </span>
-              <span className="rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-xs text-white/90 font-mono border border-white/20">
-                🔍 Click to Expand ({activeIndex + 1} / {processSteps.length})
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setAutoPlay((value) => !value);
+                  }}
+                  aria-pressed={!autoPlay}
+                  className="rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-xs font-medium text-white/90 border border-white/20 hover:bg-black/80 transition"
+                >
+                  {autoPlay ? "⏸ Pause tour" : "▶ Play tour"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalStepIndex(activeIndex)}
+                  className="rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-xs text-white/90 font-mono border border-white/20 hover:bg-black/80 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  Expand ({activeIndex + 1} / {processSteps.length})
+                </button>
+              </div>
             </div>
 
             {/* Bottom Info Overlay */}
             <div className="absolute inset-x-0 bottom-0 p-7 text-white z-10">
-              <span className="text-xs uppercase tracking-widest text-[#D8C19A] font-semibold">
+              <span className="text-xs font-medium text-[#D8C19A]">
                 {activeStep.sub}
               </span>
               <h2 className="font-serif-display text-3xl text-white mt-1">
@@ -301,10 +327,15 @@ export default function InteractiveProcess() {
       {/* FULLSCREEN VIDEO LIGHTBOX MODAL (using React createPortal at document.body) */}
       {mounted && modalStepIndex !== null && createPortal(
         <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Process step ${processSteps[modalStepIndex].n}: ${processSteps[modalStepIndex].t}`}
+          tabIndex={-1}
           onClick={(e) => {
-            if (e.target === e.currentTarget) setModalStepIndex(null);
+            if (e.target === e.currentTarget) closeProcessModal();
           }}
-          className="fixed inset-0 z-[200] bg-[#3A2025]/98 backdrop-blur-md flex flex-col justify-between p-3 sm:p-6 overflow-hidden animate-fadeIn text-white"
+          className="fixed inset-0 z-[200] bg-[#3A2025]/98 backdrop-blur-md flex flex-col justify-between p-3 sm:p-6 overflow-hidden animate-fadeIn text-white focus:outline-none"
         >
           {/* Top Controls Bar */}
           <div className="flex items-center justify-between text-white z-20 gap-2 shrink-0 pt-2 sm:pt-0">
@@ -322,10 +353,11 @@ export default function InteractiveProcess() {
                 onClick={() => setIsMuted((m) => !m)}
                 className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/30 transition flex items-center gap-1 border border-white/15"
               >
-                <span>{isMuted ? "🔇 Muted" : "🔊 Sound On"}</span>
+                <span>{isMuted ? "Muted" : "Sound on"}</span>
               </button>
               <button
-                onClick={() => setModalStepIndex(null)}
+                onClick={() => closeProcessModal()}
+                data-autofocus
                 className="rounded-full bg-[#6B2638] hover:bg-[#541D2B] h-10 w-10 sm:h-11 sm:w-11 flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-2xl ring-2 ring-[#D8C19A] active:scale-90 transition-all shrink-0"
                 aria-label="Close Video"
               >
@@ -337,7 +369,7 @@ export default function InteractiveProcess() {
           {/* Main Video Workspace */}
           <div
             onClick={(e) => {
-              if (e.target === e.currentTarget) setModalStepIndex(null);
+              if (e.target === e.currentTarget) closeProcessModal();
             }}
             className="relative flex-1 flex items-center justify-center overflow-hidden my-2 sm:my-4"
           >
@@ -379,7 +411,7 @@ export default function InteractiveProcess() {
           {/* Bottom Footer Info & WhatsApp CTA */}
           <div className="max-w-4xl mx-auto w-full bg-[#3A2025]/95 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 ring-1 ring-[#D8C19A]/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-white z-20 shrink-0">
             <div className="text-left w-full sm:w-auto">
-              <span className="text-[10px] sm:text-[11px] text-[#D8C19A] uppercase font-semibold tracking-wider">
+              <span className="text-[10px] sm:text-[11px] text-[#D8C19A] font-semibold">
                 {processSteps[modalStepIndex].sub}
               </span>
               <h3 className="font-serif-display text-base sm:text-lg text-white mt-0.5">
@@ -392,7 +424,7 @@ export default function InteractiveProcess() {
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
-                onClick={() => setModalStepIndex(null)}
+                onClick={() => closeProcessModal()}
                 className="sm:hidden px-4 py-2.5 rounded-full bg-white/15 text-xs text-white font-medium hover:bg-white/25 active:scale-95 transition"
               >
                 ✕ Close
@@ -403,7 +435,7 @@ export default function InteractiveProcess() {
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#20ba59] active:scale-95 transition shadow-lg"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-full bg-whatsapp px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-whatsapp-hover active:scale-95 transition shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#3A2025]"
               >
                 <span>Start Step {processSteps[modalStepIndex].n} on WhatsApp</span>
                 <span>→</span>

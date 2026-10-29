@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { gallery as defaultGallery, GalleryItem, site } from "@/lib/site";
 import Reveal from "@/components/Reveal";
+import { useMounted } from "@/lib/use-mounted";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 
 export default function Gallery() {
   const [items, setItems] = useState<GalleryItem[]>(defaultGallery);
@@ -12,11 +14,8 @@ export default function Gallery() {
   const [visibleCount, setVisibleCount] = useState(6); // 3 top + 3 bottom = 6 initial items
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [zoomScale, setZoomScale] = useState(1);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useMounted();
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   // Fetch dynamic gallery items from database / API if available
   useEffect(() => {
@@ -58,6 +57,8 @@ export default function Gallery() {
     setZoomScale(1);
   }, []);
 
+  useFocusTrap(dialogRef, selectedIndex !== null, closeLightbox);
+
   const handlePrev = useCallback(() => {
     if (selectedIndex === null) return;
     setSelectedIndex((prev) => (prev! > 0 ? prev! - 1 : filteredItems.length - 1));
@@ -86,17 +87,16 @@ export default function Gallery() {
     };
   }, [selectedIndex]);
 
-  // Keyboard accessibility
+  // Arrow-key navigation (Escape + focus trapping live in useFocusTrap)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedIndex === null) return;
-      if (e.key === "Escape") closeLightbox();
       if (e.key === "ArrowLeft") handlePrev();
       if (e.key === "ArrowRight") handleNext();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex, closeLightbox, handlePrev, handleNext]);
+  }, [selectedIndex, handlePrev, handleNext]);
 
   const activeItem = selectedIndex !== null ? filteredItems[selectedIndex] : null;
 
@@ -106,12 +106,14 @@ export default function Gallery() {
       <div className="flex flex-wrap justify-center gap-2 mb-8">
         {categories.map((cat) => (
           <button
+            type="button"
             key={cat}
+            aria-pressed={activeCategory === cat}
             onClick={() => {
               setActiveCategory(cat);
               setVisibleCount(6); // Reset pagination when switching filter
             }}
-            className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
+            className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2 ${
               activeCategory === cat
                 ? "bg-[#6B2638] text-white shadow-md border border-[#6B2638]"
                 : "bg-[#FFFFFF] text-[#6B2638] border border-[#D8C19A] hover:border-[#B08A57] hover:bg-[#F1E7DC]"
@@ -126,9 +128,14 @@ export default function Gallery() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         {displayedItems.map((g, index) => (
           <Reveal key={g.id || `${g.src}-${index}`} delay={(index % 6) * 120}>
-            <div
-              onClick={() => openLightbox(index)}
-              className="group relative cursor-pointer overflow-hidden rounded-3xl aspect-[3/4] bg-[#FFFFFF] shadow-sm ring-1 ring-[#D8C19A] hover:ring-2 hover:ring-[#B08A57] hover:shadow-xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            <a
+              href={g.src}
+              onClick={(e) => {
+                e.preventDefault();
+                openLightbox(index);
+              }}
+              aria-label={`Open ${g.title} in the gallery`}
+              className="group relative block w-full cursor-pointer overflow-hidden rounded-3xl aspect-[3/4] bg-[#FFFFFF] text-left shadow-sm ring-1 ring-[#D8C19A] hover:ring-2 hover:ring-[#B08A57] hover:shadow-xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2"
             >
               <Image
                 src={g.src}
@@ -149,25 +156,25 @@ export default function Gallery() {
 
               {/* Click to Zoom Hint Icon */}
               <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full bg-[#6B2638]/90 p-2 text-white text-xs shadow-md">
-                🔍 Zoom
+                Zoom
               </span>
 
               {/* Title & Info */}
               <div className="absolute inset-x-0 bottom-0 p-4 text-left text-white z-10">
-                <h4 className="font-serif-display text-base md:text-lg text-white leading-tight drop-shadow-sm">
+                <h3 className="font-serif-display text-base md:text-lg text-white leading-tight drop-shadow-sm">
                   {g.title}
-                </h4>
+                </h3>
                 {g.desc && (
                   <p className="mt-1 text-xs text-white/80 line-clamp-2 font-light drop-shadow-xs">
                     {g.desc}
                   </p>
                 )}
                 <span className="mt-2 inline-flex items-center gap-1 text-[11px] text-[#D8C19A] font-medium group-hover:text-white transition-colors duration-500">
-                  <span>View High-Res Work</span>
-                  <span>→</span>
+                  <span>View design</span>
+                  <span aria-hidden="true">→</span>
                 </span>
               </div>
-            </div>
+            </a>
           </Reveal>
         ))}
       </div>
@@ -176,10 +183,11 @@ export default function Gallery() {
       {hasMore && (
         <div className="mt-12 text-center">
           <button
+            type="button"
             onClick={handleLoadMore}
-            className="cta-shimmer group relative inline-flex items-center gap-2 rounded-full bg-[#6B2638] px-8 py-3.5 text-sm font-semibold text-white shadow-md hover:bg-[#541D2B] hover:shadow-lg active:scale-95 transition-all duration-200"
+            className="cta-shimmer group relative inline-flex items-center gap-2 rounded-full bg-[#6B2638] px-8 py-3.5 text-sm font-semibold text-white shadow-md hover:bg-[#541D2B] hover:shadow-lg active:scale-95 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2"
           >
-            <span>✨ Explore More Designs</span>
+            <span>Explore more designs</span>
             <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs text-[#D8C19A]">
               +{filteredItems.length - visibleCount} More
             </span>
@@ -190,10 +198,15 @@ export default function Gallery() {
       {/* Fullscreen High-Res Lightbox Modal with Zoom & Controls */}
       {mounted && selectedIndex !== null && activeItem && createPortal(
         <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${activeItem.title} preview`}
+          tabIndex={-1}
           onClick={(e) => {
             if (e.target === e.currentTarget) closeLightbox();
           }}
-          className="fixed inset-0 z-[200] bg-[#3A2025]/98 backdrop-blur-md flex flex-col justify-between p-3 sm:p-6 overflow-hidden animate-fadeIn text-white"
+          className="fixed inset-0 z-[200] bg-[#3A2025]/98 backdrop-blur-md flex flex-col justify-between p-3 sm:p-6 overflow-hidden animate-fadeIn text-white focus:outline-none"
         >
           {/* Header Controls Bar */}
           <div className="flex items-center justify-between text-white z-20 gap-2 shrink-0 pt-2 sm:pt-0">
@@ -214,8 +227,9 @@ export default function Gallery() {
                   disabled={zoomScale <= 1}
                   className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium hover:bg-white/30 disabled:opacity-40 transition"
                   title="Zoom Out"
+                  aria-label="Zoom out"
                 >
-                  🔍 -
+                  −
                 </button>
                 <span className="text-xs text-white/80 min-w-[32px] text-center font-mono">
                   {Math.round(zoomScale * 100)}%
@@ -225,8 +239,9 @@ export default function Gallery() {
                   disabled={zoomScale >= 3}
                   className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium hover:bg-white/30 disabled:opacity-40 transition"
                   title="Zoom In"
+                  aria-label="Zoom in"
                 >
-                  🔍 +
+                  +
                 </button>
                 {zoomScale > 1 && (
                   <button
@@ -241,6 +256,7 @@ export default function Gallery() {
               {/* Prominent High-Contrast Close Button (Always visible on mobile & desktop at top-right) */}
               <button
                 onClick={closeLightbox}
+                data-autofocus
                 className="rounded-full bg-[#6B2638] hover:bg-[#541D2B] h-10 w-10 sm:h-11 sm:w-11 flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-2xl ring-2 ring-[#D8C19A] active:scale-90 transition-all shrink-0"
                 aria-label="Close Modal"
                 title="Close (Esc)"
@@ -301,8 +317,8 @@ export default function Gallery() {
           {/* Lightbox Footer Info & Direct WhatsApp Inquiry */}
           <div className="max-w-4xl mx-auto w-full bg-[#3A2025]/95 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 ring-1 ring-[#D8C19A]/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-white z-20 shrink-0">
             <div className="text-left w-full sm:w-auto">
-              <span className="text-[10px] sm:text-[11px] text-[#D8C19A] uppercase font-semibold tracking-wider">
-                {activeItem.cat} Design Details
+              <span className="text-[10px] sm:text-[11px] text-[#D8C19A] font-medium">
+                {activeItem.cat} · Design details
               </span>
               <h3 className="font-serif-display text-base sm:text-lg text-white mt-0.5">
                 {activeItem.title}
@@ -327,10 +343,9 @@ export default function Gallery() {
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#20ba59] active:scale-95 transition shadow-lg"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-full bg-whatsapp px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-whatsapp-hover active:scale-95 transition shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#3A2025]"
               >
                 <span>Inquire on WhatsApp</span>
-                <span>💬</span>
               </a>
             </div>
           </div>

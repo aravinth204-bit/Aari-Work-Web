@@ -22,6 +22,8 @@ export default function SmoothScrollProvider({
       wheelMultiplier: 0.85, // Calmer wheel scroll responsiveness
       touchMultiplier: 1.5,
       infinite: false,
+      anchors: true, // Let Lenis handle in-page #links instead of native smooth scroll
+      stopInertiaOnNavigate: true,
     });
 
     let rafId: number;

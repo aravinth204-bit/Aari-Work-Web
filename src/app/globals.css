@@ -9,6 +9,9 @@
   --color-burgundy-hover: #541D2B;
   --color-gold: #B08A57;
   --color-gold-light: #D8C19A;
+  --color-gold-deep: #7E5C30;
+  --color-whatsapp: #0F7A6C;
+  --color-whatsapp-hover: #0B665C;
 }
 
 :root {
@@ -20,10 +23,13 @@
   --color-burgundy-hover: #541D2B;
   --color-gold: #B08A57;
   --color-gold-light: #D8C19A;
+  --color-gold-deep: #7E5C30;
+  --color-whatsapp: #0F7A6C;
+  --color-whatsapp-hover: #0B665C;
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
 }
 
 body {
@@ -32,7 +38,7 @@ body {
 }
 
 .font-serif-display {
-  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
 }
 
 /* 60FPS Performance Base Optimizations */
@@ -62,13 +68,9 @@ html.lenis, html.lenis body {
 }
 
 body {
-  background-color: var(--color-ivory);
-  color: var(--color-burgundy-dark);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Tamil",
+    sans-serif;
   overflow-x: hidden;
-}
-
-.font-serif-display {
-  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
 }
 
 /* Smooth & Natural Scroll Reveal */
@@ -101,6 +103,23 @@ body {
 
 .gold-line {
   background: linear-gradient(90deg, transparent, #B08A57, transparent);
+}
+
+/* Aari hoop: one stitched arc draws in on load */
+.hoop-arc {
+  stroke-dasharray: 150 450;
+  stroke-dashoffset: 600;
+  animation: stitchDraw 1600ms cubic-bezier(0.16, 1, 0.3, 1) 220ms forwards;
+}
+
+@keyframes stitchDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.stitch-rule {
+  background-image: repeating-linear-gradient(90deg, #B08A57 0 6px, transparent 6px 12px);
 }
 
 /* Hardware-Accelerated 60FPS Hero Entrance Animations */
@@ -158,43 +177,43 @@ body {
   backface-visibility: hidden;
 }
 
-/* Mobile: Slower, calmer entrance */
+/* Mobile: quick entrance */
 .hero-animate-eyebrow {
-  animation: heroFadeUp14 800ms cubic-bezier(0.16, 1, 0.3, 1) 2200ms forwards;
+  animation: heroFadeUp14 800ms cubic-bezier(0.16, 1, 0.3, 1) 120ms forwards;
 }
 
 .hero-animate-heading {
-  animation: heroFadeUp24 950ms cubic-bezier(0.16, 1, 0.3, 1) 2400ms forwards;
+  animation: heroFadeUp24 950ms cubic-bezier(0.16, 1, 0.3, 1) 240ms forwards;
 }
 
 .hero-animate-paragraph {
-  animation: heroFadeUp18 900ms cubic-bezier(0.16, 1, 0.3, 1) 2650ms forwards;
+  animation: heroFadeUp18 900ms cubic-bezier(0.16, 1, 0.3, 1) 360ms forwards;
 }
 
 .hero-animate-cta-primary {
-  animation: heroFadeUp16 850ms cubic-bezier(0.16, 1, 0.3, 1) 2900ms forwards;
+  animation: heroFadeUp16 850ms cubic-bezier(0.16, 1, 0.3, 1) 480ms forwards;
 }
 
 .hero-animate-cta-secondary {
-  animation: heroFadeUp16 850ms cubic-bezier(0.16, 1, 0.3, 1) 3100ms forwards;
+  animation: heroFadeUp16 850ms cubic-bezier(0.16, 1, 0.3, 1) 600ms forwards;
 }
 
-/* Desktop: Silky-smooth, editorial luxury entrance */
+/* Desktop: editorial entrance */
 @media (min-width: 768px) {
   .hero-animate-eyebrow {
-    animation: heroFadeUp14 1000ms cubic-bezier(0.16, 1, 0.3, 1) 2200ms forwards;
+    animation: heroFadeUp14 1000ms cubic-bezier(0.16, 1, 0.3, 1) 200ms forwards;
   }
   .hero-animate-heading {
-    animation: heroFadeUp24 1200ms cubic-bezier(0.16, 1, 0.3, 1) 2400ms forwards;
+    animation: heroFadeUp24 1200ms cubic-bezier(0.16, 1, 0.3, 1) 320ms forwards;
   }
   .hero-animate-paragraph {
-    animation: heroFadeUp18 1100ms cubic-bezier(0.16, 1, 0.3, 1) 2650ms forwards;
+    animation: heroFadeUp18 1100ms cubic-bezier(0.16, 1, 0.3, 1) 440ms forwards;
   }
   .hero-animate-cta-primary {
-    animation: heroFadeUp16 1000ms cubic-bezier(0.16, 1, 0.3, 1) 2900ms forwards;
+    animation: heroFadeUp16 1000ms cubic-bezier(0.16, 1, 0.3, 1) 560ms forwards;
   }
   .hero-animate-cta-secondary {
-    animation: heroFadeUp16 1000ms cubic-bezier(0.16, 1, 0.3, 1) 3100ms forwards;
+    animation: heroFadeUp16 1000ms cubic-bezier(0.16, 1, 0.3, 1) 680ms forwards;
   }
 }
 
@@ -209,6 +228,11 @@ body {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
+  }
+
+  .hoop-arc {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
   }
 }
 

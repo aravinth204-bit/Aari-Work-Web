@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { db, isDbConfigured } from "@/db";
 import { enquiries } from "@/db/schema";
 import { desc } from "drizzle-orm";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  if (!isDbConfigured) {
+    return NextResponse.json(
+      { error: "Enquiry service is not configured yet. Please contact us on WhatsApp." },
+      { status: 503 },
+    );
+  }
+
   try {
     const body = await request.json();
     const name = String(body.name ?? "").trim();
@@ -42,7 +50,21 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
-  const rows = await db.select().from(enquiries).orderBy(desc(enquiries.createdAt)).limit(50);
-  return NextResponse.json({ count: rows.length, enquiries: rows });
+// Customer enquiries contain personal data, so listing them requires the
+// ADMIN_TOKEN bearer header. Without it the endpoint stays locked.
+export async function GET(request: Request) {
+  const denied = requireAdmin(request);
+  if (denied) return denied;
+
+  if (!isDbConfigured) {
+    return NextResponse.json({ error: "Database is not configured." }, { status: 503 });
+  }
+
+  try {
+    const rows = await db.select().from(enquiries).orderBy(desc(enquiries.createdAt)).limit(50);
+    return NextResponse.json({ count: rows.length, enquiries: rows });
+  } catch (error) {
+    console.error("enquiry list error", error);
+    return NextResponse.json({ error: "Could not load enquiries." }, { status: 500 });
+  }
 }

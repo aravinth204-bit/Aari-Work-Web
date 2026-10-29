@@ -1,7 +1,13 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
-const databaseUrl = process.env.DATABASE_URL || "";
+const databaseUrl = process.env.DATABASE_URL?.trim();
+
+/**
+ * Whether `DATABASE_URL` is present. Routes should check this and return a
+ * clear 503 instead of surfacing a confusing connection error to visitors.
+ */
+export const isDbConfigured = Boolean(databaseUrl);
 
 const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: Pool;
@@ -10,7 +16,8 @@ const globalForDb = globalThis as typeof globalThis & {
 export const pool =
   globalForDb.__arenaNextJsPostgresqlPool ??
   new Pool({
-    connectionString: databaseUrl || "postgres://localhost:5432/placeholder",
+    connectionString: databaseUrl,
+    connectionTimeoutMillis: 5000,
   });
 
 if (process.env.NODE_ENV !== "production") {

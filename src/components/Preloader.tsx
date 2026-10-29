@@ -1,21 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function Preloader() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFading, setIsFading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const finishedRef = useRef(false);
 
-  const handleFinish = () => {
-    if (isFading) return;
+  const handleFinish = useCallback(() => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
     setIsFading(true);
     document.body.classList.add("preloader-done");
     setTimeout(() => {
       setIsLoading(false);
       document.body.style.overflow = "";
     }, 450);
-  };
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -24,12 +26,12 @@ export default function Preloader() {
     if (prefersReducedMotion) {
       const quickTimer = setTimeout(() => {
         handleFinish();
-      }, 400);
+      }, 200);
       return () => clearTimeout(quickTimer);
     }
 
     const startTime = performance.now();
-    const duration = 1600;
+    const duration = 650;
 
     const frame = (now: number) => {
       const elapsed = now - startTime;
@@ -40,7 +42,7 @@ export default function Preloader() {
       } else {
         setTimeout(() => {
           handleFinish();
-        }, 250);
+        }, 120);
       }
     };
 
@@ -50,7 +52,7 @@ export default function Preloader() {
       cancelAnimationFrame(animId);
       document.body.style.overflow = "";
     };
-  }, []);
+  }, [handleFinish]);
 
   if (!isLoading) return null;
 
@@ -67,7 +69,7 @@ export default function Preloader() {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] h-[100dvh] w-screen flex flex-col items-center justify-center bg-[#F8F3EC] text-[#3A2025] select-none transition-opacity duration-450 ease-out ${
+      className={`preloader-root fixed inset-0 z-[100] h-[100dvh] w-screen flex flex-col items-center justify-center bg-[#F8F3EC] text-[#3A2025] select-none transition-opacity duration-450 ease-out ${
         isFading ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
@@ -129,7 +131,11 @@ export default function Preloader() {
               willChange: "transform",
             }}
           >
-            <span className="text-xl inline-block drop-shadow-md">🪡</span>
+            <svg className="h-5 w-5 text-[#6B2638] drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
+              <path d="M19 5 7 17" />
+              <path d="M17.6 6.4c.8.8.8 2 0 2.8s-2 .8-2.8 0" />
+              <circle cx="6.5" cy="17.5" r="0.9" />
+            </svg>
           </div>
         </div>
 
@@ -144,9 +150,9 @@ export default function Preloader() {
           <h2 className="font-serif-display text-3xl sm:text-4xl text-[#3A2025] font-bold tracking-wide drop-shadow-xs">
             Tales by Threads
           </h2>
-          <div className="gold-line h-px w-28 mx-auto my-2" />
-          <p className="text-[11px] text-[#B08A57] tracking-[0.3em] font-semibold uppercase">
-            HANDCRAFTED AARI WORK STUDIO
+          <div className="stitch-rule h-0.5 w-28 mx-auto my-2" />
+          <p className="text-[11px] text-gold-deep tracking-wide font-medium">
+            Handcrafted aari work studio
           </p>
         </div>
 
