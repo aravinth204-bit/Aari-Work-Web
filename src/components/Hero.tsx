@@ -91,7 +91,7 @@ export default function Hero() {
                 muted
                 playsInline
                 preload="metadata"
-                poster="/images/hero_aari_artisan.jpg"
+                poster="/images/hero_aari_artisan.webp"
                 aria-hidden="true"
                 className="h-full w-full object-cover motion-reduce:hidden"
               >
@@ -100,7 +100,7 @@ export default function Hero() {
               </video>
 
               <Image
-                src="/images/hero_aari_artisan.jpg"
+                src="/images/hero_aari_artisan.webp"
                 alt="Artisan hand-stitching aari work on a wooden frame"
                 fill
                 priority

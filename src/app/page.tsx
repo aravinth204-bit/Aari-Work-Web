@@ -248,7 +248,7 @@ export default function Home() {
           <div>
             <div className="flex items-center gap-3">
               <Image
-                src="/images/Logo.png"
+                src="/images/Logo-256.png"
                 alt={site.name}
                 width={48}
                 height={48}

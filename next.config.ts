@@ -10,6 +10,8 @@ const galleryHosts = (process.env.GALLERY_IMAGE_HOSTS ?? "")
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.1.5'],
   images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 31,
     remotePatterns: [
       {
         protocol: 'https',

@@ -54,9 +54,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   icons: {
-    icon: "/images/Logo.png",
-    shortcut: "/images/Logo.png",
-    apple: "/images/Logo.png",
+    icon: "/images/Logo-256.png",
+    shortcut: "/images/Logo-256.png",
+    apple: "/images/Logo-256.png",
   },
   openGraph: {
     type: "website",
@@ -91,7 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     description: site.tagline,
     url: siteUrl.toString(),
     image: [new URL(socialImage, siteUrl).toString()],
-    logo: new URL("/images/Logo.png", siteUrl).toString(),
+    logo: new URL("/images/Logo-256.png", siteUrl).toString(),
     telephone: site.phone,
     priceRange: "₹₹",
     address: {
@@ -117,8 +117,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-IN" className={playfair.variable}>
       <head>
-        <link rel="icon" href="/images/Logo.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/images/Logo.png" />
+        <link rel="icon" href="/images/Logo-256.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/images/Logo-256.png" />
         <noscript>
           <style>{`
             .reveal { opacity: 1 !important; transform: none !important; }

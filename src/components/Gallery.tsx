@@ -297,7 +297,7 @@ export default function Gallery() {
                   alt={activeItem.title}
                   fill
                   priority
-                  sizes="100vw"
+                  sizes="(max-width: 768px) 100vw, 80vw"
                   className="object-contain"
                 />
               </div>

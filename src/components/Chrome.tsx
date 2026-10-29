@@ -38,7 +38,7 @@ export function Header() {
       <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
         <a href="#home" className="flex items-center gap-2.5">
           <Image
-            src="/images/Logo.png"
+            src="/images/Logo-256.png"
             alt={site.name}
             width={36}
             height={36}
