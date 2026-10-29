@@ -3,10 +3,9 @@ import Gallery from "@/components/Gallery";
 import EnquiryForm from "@/components/EnquiryForm";
 import Reveal from "@/components/Reveal";
 import InteractiveProcess from "@/components/InteractiveProcess";
-import Preloader from "@/components/Preloader";
+import Hero from "@/components/Hero";
 import ThreadDivider from "@/components/ThreadDivider";
 import SmartVideo from "@/components/SmartVideo";
-import Hero from "@/components/Hero";
 import ServiceIcon from "@/components/ServiceIcon";
 import { Header, Faqs, FloatingActions } from "@/components/Chrome";
 import { site, services, testimonials } from "@/lib/site";
@@ -24,7 +23,6 @@ const footerLinks = [
 export default function Home() {
   return (
     <main id="home" tabIndex={-1} className="focus:outline-none">
-      <Preloader />
       <Header />
       <FloatingActions />
 
@@ -158,8 +156,9 @@ export default function Home() {
 
                 <div>
                   {/* Spaced Out 5 Gold Stars */}
-                  <div className="flex items-center gap-1 text-gold-deep text-sm tracking-wider" aria-label="Rated 5 out of 5">
+                  <div className="flex items-center gap-1 text-gold-deep text-sm tracking-wider">
                     <span aria-hidden="true">★ ★ ★ ★ ★</span>
+                    <span className="sr-only">Rated 5 out of 5</span>
                   </div>
                   <p className="mt-3.5 text-sm text-[#3A2025]/85 leading-relaxed">“{t.text}”</p>
                 </div>
@@ -230,7 +229,9 @@ export default function Home() {
       </Section>
 
       {/* CONTACT / FOOTER */}
-      <footer id="contact" className="relative bg-[#3A2025] text-[#F8F3EC]/90 border-t border-[#B08A57]/20 overflow-hidden">
+      <footer id="contact" className="relative footer-shine bg-[#3A2025] text-[#F8F3EC]/90 border-t border-[#B08A57]/30 overflow-hidden">
+        {/* Ambient Gold Glow & Shimmer Header */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-2xl h-32 bg-radial from-[#D8C19A]/15 to-transparent pointer-events-none blur-2xl" />
         {/* Subtle Static Decorative Embroidery Thread Background Pattern */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.10]">
           <svg className="absolute -top-12 -left-12 w-96 h-96 text-[#B08A57]" viewBox="0 0 400 400" fill="none" stroke="currentColor">
@@ -291,7 +292,7 @@ export default function Home() {
           {/* Column 2: Quick Links */}
           <div>
             <p className="text-[#B08A57] font-medium text-xs mb-3">Quick links</p>
-            <ul className="space-y-2 text-sm text-[#F8F3EC]/80">
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5 text-sm text-[#F8F3EC]/80">
               {footerLinks.map((item) => (
                 <li key={item.href}>
                   <a href={item.href} className="hover:text-[#B08A57] transition-colors duration-300 flex items-center gap-1.5">

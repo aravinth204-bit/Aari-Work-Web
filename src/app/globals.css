@@ -30,6 +30,13 @@
 
 html {
   scroll-padding-top: 4.5rem;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -47,25 +54,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-html.lenis, html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-smooth iframe {
-  pointer-events: none;
-}
+/* Smooth anchor scrolling is handled natively via CSS. */
 
 body {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Tamil",
@@ -292,3 +281,54 @@ body {
 }
 
 
+
+
+/* Luxury Gold Footer Ambient Shine */
+.footer-shine {
+  position: relative;
+}
+
+.footer-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 50%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(216, 193, 154, 0.2) 20%,
+    rgba(255, 245, 225, 0.85) 50%,
+    rgba(216, 193, 154, 0.2) 80%,
+    transparent 100%
+  );
+  box-shadow: 0 0 12px 1px rgba(216, 193, 154, 0.6);
+  animation: footerShineLoop 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  z-index: 20;
+}
+
+@keyframes footerShineLoop {
+  0% {
+    left: -60%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    left: 120%;
+    opacity: 0;
+  }
+  100% {
+    left: 120%;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-shine::before {
+    display: none !important;
+  }
+}

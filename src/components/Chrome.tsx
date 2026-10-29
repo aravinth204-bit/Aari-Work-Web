@@ -17,9 +17,26 @@ const links = [
 export function Header() {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
+  const [activeSection, setActiveSection] = useState("#home");
 
   useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 30);
+    const onScroll = () => {
+      setSolid(window.scrollY > 30);
+
+      // Track active section on scroll
+      const sectionIds = ["contact", "faq", "reviews", "process", "services", "about", "gallery", "home"];
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 140 && rect.bottom >= 140) {
+            setActiveSection(`#${id}`);
+            break;
+          }
+        }
+      }
+    };
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -31,64 +48,134 @@ export function Header() {
     <header
       className={`fixed top-0 inset-x-0 z-40 transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:!transition-none ${
         isScrolledOrOpen
-          ? "bg-[#F8F3EC]/92 backdrop-blur-md shadow-sm border-b border-[#D8C19A]/20"
+          ? "bg-[#F8F3EC]/92 backdrop-blur-md shadow-sm border-b border-[#D8C19A]/30"
           : "bg-transparent border-b border-transparent"
       }`}
     >
       <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
-        <a href="#home" className="flex items-center gap-2.5">
+        <a href="#home" className="flex items-center gap-2.5 group">
           <Image
             src="/images/Logo-256.png"
             alt={site.name}
             width={36}
             height={36}
-            className="h-9 w-9 object-contain rounded-full bg-white/20 p-0.5 shadow-sm"
+            className="h-9 w-9 object-contain rounded-full bg-white/20 p-0.5 shadow-sm transition-transform duration-300 group-hover:scale-105"
           />
-          <span className="font-serif-display text-lg text-[#3A2025]">
+          <span className="font-serif-display text-lg text-[#3A2025] group-hover:text-[#6B2638] transition-colors">
             {site.name}
           </span>
         </a>
 
-        <nav className="hidden md:flex items-center gap-6 text-sm">
-          {links.map(([l, h]) => (
-            <a
-              key={h}
-              href={h}
-              className="text-[#3A2025]/90 hover:text-gold-deep transition-colors duration-300"
-            >
-              {l}
-            </a>
-          ))}
-          <a href="#enquiry" className="cta-shimmer rounded-full bg-[#6B2638] px-4 py-2 text-white hover:bg-[#541D2B] transition">
+        <nav className="hidden md:flex items-center gap-1.5 text-sm font-medium">
+          {links.map(([l, h]) => {
+            const isActive = activeSection === h;
+            return (
+              <a
+                key={h}
+                href={h}
+                onClick={() => setActiveSection(h)}
+                className={`relative px-3.5 py-1.5 rounded-full transition-all duration-200 ${
+                  isActive
+                    ? "text-[#6B2638] font-semibold bg-[#6B2638]/10 shadow-xs"
+                    : "text-[#3A2025]/80 hover:text-[#6B2638] hover:bg-[#B08A57]/15"
+                }`}
+              >
+                {l}
+                {isActive && (
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[#6B2638]" />
+                )}
+              </a>
+            );
+          })}
+          <a
+            href="#enquiry"
+            onClick={() => setActiveSection("#enquiry")}
+            className={`ml-2 cta-shimmer rounded-full px-5 py-2 text-white font-medium transition-all duration-200 shadow-sm ${
+              activeSection === "#enquiry"
+                ? "bg-[#541D2B] ring-2 ring-[#B08A57]"
+                : "bg-[#6B2638] hover:bg-[#541D2B] hover:shadow-md hover:scale-[1.02]"
+            }`}
+          >
             <span>Enquiry</span>
           </a>
         </nav>
 
+        {/* Mobile Hamburger / Close Button */}
         <button
           type="button"
-          onClick={() => setOpen((o) => !o)}
-          className="md:hidden text-2xl text-[#3A2025] transition-colors duration-300"
+          onClick={() => setOpen((prev) => !prev)}
+          className="relative z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-white/40 ring-1 ring-[#D8C19A]/40 text-[#3A2025] active:scale-95 md:hidden"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           aria-controls="mobile-menu"
         >
-          {open ? "×" : "☰"}
+          {open ? (
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          )}
         </button>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Full-Screen Overlay Menu */}
       {open && (
-        <div id="mobile-menu" className="md:hidden border-t border-[#D8C19A]/30 bg-[#F8F3EC] px-4 py-4 space-y-3">
-          {links.map(([l, h]) => (
+        <div
+          id="mobile-menu"
+          className="fixed inset-0 z-50 flex h-[100dvh] w-full flex-col items-center justify-center bg-[#F8F3EC] px-6 pb-16 pt-20 overflow-y-auto md:hidden"
+        >
+          {/* Subtle Embroidery Background Accent */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.08] overflow-hidden flex items-center justify-center">
+            <svg className="w-96 h-96 text-[#B08A57]" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1">
+              <circle cx="50" cy="50" r="35" strokeDasharray="3 3" />
+              <path d="M 50 15 C 45 35, 35 45, 15 50 C 35 55, 45 65, 50 85 C 55 65, 65 55, 85 50 C 65 45, 55 35, 50 15 Z" />
+            </svg>
+          </div>
+
+          <nav className="relative z-10 flex w-full max-w-xs flex-col items-center space-y-2.5 text-center">
+            <p className="text-[11px] font-medium tracking-widest text-[#B08A57] uppercase mb-1">
+              {site.name} Menu
+            </p>
+
+            {links.map(([l, h]) => {
+              const isActive = activeSection === h;
+              return (
+                <a
+                  key={h}
+                  href={h}
+                  onClick={() => {
+                    setActiveSection(h);
+                    setOpen(false);
+                  }}
+                  className={`w-full py-3 px-6 rounded-2xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                    isActive
+                      ? "bg-[#6B2638] text-white shadow-md font-semibold scale-102"
+                      : "text-[#3A2025] hover:bg-[#B08A57]/20 active:scale-98"
+                  }`}
+                >
+                  {isActive && <span className="text-xs text-[#D8C19A]">✦</span>}
+                  <span>{l}</span>
+                  {isActive && <span className="text-xs text-[#D8C19A]">✦</span>}
+                </a>
+              );
+            })}
+
+            <div className="w-20 h-px bg-[#D8C19A]/40 my-3" />
+
             <a
-              key={h}
-              href={h}
-              onClick={() => setOpen(false)}
-              className="block text-sm font-medium text-[#3A2025] hover:text-gold-deep"
+              href="#enquiry"
+              onClick={() => {
+                setActiveSection("#enquiry");
+                setOpen(false);
+              }}
+              className="cta-shimmer w-full py-3.5 rounded-full bg-[#6B2638] text-white text-base font-semibold shadow-lg hover:bg-[#541D2B] active:scale-95 transition-all"
             >
-              {l}
+              <span>Get a Quote / Enquiry</span>
             </a>
-          ))}
+          </nav>
         </div>
       )}
     </header>

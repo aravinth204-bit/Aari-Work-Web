@@ -24,13 +24,17 @@ export default function SmartVideo({
 }: SmartVideoProps) {
   const ref = useRef<HTMLVideoElement>(null);
   const [inView, setInView] = useState(false);
+  const [hasBeenInView, setHasBeenInView] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+        if (entry.isIntersecting) setHasBeenInView(true);
+      },
       { threshold: 0.25 },
     );
 
@@ -61,7 +65,7 @@ export default function SmartVideo({
       loop
       playsInline
       preload="none"
-      poster={poster}
+      poster={hasBeenInView ? poster : undefined}
       controls={controls}
       className={className}
     >

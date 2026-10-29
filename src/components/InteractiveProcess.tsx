@@ -123,7 +123,6 @@ export default function InteractiveProcess() {
               e.preventDefault();
               setModalStepIndex(index);
             }}
-            aria-label={`Open step ${step.n}: ${step.t}`}
             className="relative block w-full aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-[#D8C19A] bg-[#3A2025] cursor-pointer group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B08A57] focus-visible:ring-offset-2"
           >
             {/* Background Video */}

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
-import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import Analytics from "@/components/Analytics";
 
 const playfair = Playfair_Display({
@@ -122,21 +121,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <noscript>
           <style>{`
             .reveal { opacity: 1 !important; transform: none !important; }
-            .preloader-root { display: none !important; }
           `}</style>
         </noscript>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       </head>
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <a
           href="#home"
           className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[300] focus:rounded-full focus:bg-[#3A2025] focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
         >
           Skip to content
         </a>
-        <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        {children}
         {gaId ? <Analytics gaId={gaId} /> : null}
       </body>
+
+
+      
     </html>
   );
 }
