@@ -1,0 +1,39 @@
+[
+  {
+    "name": "Aravinth Aravi",
+    "mobile": "+918778017989",
+    "workType": "Bridal Aari Blouse",
+    "functionDate": "2026-11-07",
+    "budget": null,
+    "city": "Erode District",
+    "message": "test",
+    "id": 3,
+    "status": "new",
+    "createdAt": "2026-10-30T13:52:52.399Z",
+    "adminNotes": "testing"
+  },
+  {
+    "id": 1,
+    "name": "பிரியா (Priya M)",
+    "mobile": "+91 98765 43210",
+    "workType": "Bridal Aari Blouse",
+    "functionDate": "2026-11-25",
+    "budget": "₹3,000 – ₹6,000",
+    "city": "Gobichettipalayam",
+    "message": "Peacock motif with antique gold beads and kundan stones on elbow sleeves.",
+    "status": "new",
+    "createdAt": "2026-10-30T11:52:52.399Z"
+  },
+  {
+    "id": 2,
+    "name": "திவ்யா (Divya Ramesh)",
+    "mobile": "+91 94432 12345",
+    "workType": "Maggam Work Saree",
+    "functionDate": "2026-12-10",
+    "budget": "₹6,000+",
+    "city": "Erode",
+    "message": "Full bridal blouse and saree border matching work. Need trial 10 days before.",
+    "status": "contacted",
+    "createdAt": "2026-10-29T13:52:52.399Z"
+  }
+]

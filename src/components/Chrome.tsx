@@ -3,21 +3,23 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { site, faqs } from "@/lib/site";
-
-const links = [
-  ["Home", "#home"],
-  ["Recent Works", "#gallery"],
-  ["About Us", "#about"],
-  ["Services", "#services"],
-  ["Process", "#process"],
-  ["Reviews", "#reviews"],
-  ["Contact", "#contact"],
-];
+import { useI18n } from "@/lib/i18n";
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
   const [activeSection, setActiveSection] = useState("#home");
+  const { locale, setLocale, t } = useI18n();
+
+  const links = [
+    [t("nav.home"), "#home"],
+    [t("nav.gallery"), "#gallery"],
+    [t("nav.about"), "#about"],
+    [t("nav.services"), "#services"],
+    [t("nav.process"), "#process"],
+    [t("nav.reviews"), "#reviews"],
+    [t("nav.contact"), "#contact"],
+  ];
 
   useEffect(() => {
     const onScroll = () => {
@@ -66,6 +68,7 @@ export function Header() {
           </span>
         </a>
 
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-1.5 text-sm font-medium">
           {links.map(([l, h]) => {
             const isActive = activeSection === h;
@@ -87,6 +90,33 @@ export function Header() {
               </a>
             );
           })}
+
+          {/* Bilingual Toggle Button */}
+          <div className="ml-2 flex items-center rounded-full bg-[#FFFFFF] p-1 border border-[#D8C19A]/60 shadow-xs text-xs font-medium">
+            <button
+              type="button"
+              onClick={() => setLocale("en")}
+              className={`px-2.5 py-1 rounded-full transition-colors cursor-pointer ${
+                locale === "en"
+                  ? "bg-[#6B2638] text-white font-semibold"
+                  : "text-[#3A2025]/70 hover:text-[#6B2638]"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => setLocale("ta")}
+              className={`px-2.5 py-1 rounded-full transition-colors cursor-pointer ${
+                locale === "ta"
+                  ? "bg-[#6B2638] text-white font-semibold"
+                  : "text-[#3A2025]/70 hover:text-[#6B2638]"
+              }`}
+            >
+              தமிழ்
+            </button>
+          </div>
+
           <a
             href="#enquiry"
             onClick={() => setActiveSection("#enquiry")}
@@ -96,29 +126,52 @@ export function Header() {
                 : "bg-[#6B2638] hover:bg-[#541D2B] hover:shadow-md hover:scale-[1.02]"
             }`}
           >
-            <span>Enquiry</span>
+            <span>{t("nav.enquiry")}</span>
           </a>
         </nav>
 
-        {/* Mobile Hamburger / Close Button */}
-        <button
-          type="button"
-          onClick={() => setOpen((prev) => !prev)}
-          className="relative z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-white/40 ring-1 ring-[#D8C19A]/40 text-[#3A2025] active:scale-95 md:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-        >
-          {open ? (
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-          )}
-        </button>
+        {/* Mobile Actions: Language + Hamburger */}
+        <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center rounded-full bg-[#FFFFFF] p-0.5 border border-[#D8C19A]/60 text-xs font-medium">
+            <button
+              type="button"
+              onClick={() => setLocale("en")}
+              className={`px-2 py-0.5 rounded-full text-[11px] ${
+                locale === "en" ? "bg-[#6B2638] text-white font-semibold" : "text-[#3A2025]/70"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => setLocale("ta")}
+              className={`px-2 py-0.5 rounded-full text-[11px] ${
+                locale === "ta" ? "bg-[#6B2638] text-white font-semibold" : "text-[#3A2025]/70"
+              }`}
+            >
+              தமிழ்
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setOpen((prev) => !prev)}
+            className="relative z-[60] flex h-10 w-10 items-center justify-center rounded-full bg-white/40 ring-1 ring-[#D8C19A]/40 text-[#3A2025] active:scale-95"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+          >
+            {open ? (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Full-Screen Overlay Menu */}
@@ -173,7 +226,7 @@ export function Header() {
               }}
               className="cta-shimmer w-full py-3.5 rounded-full bg-[#6B2638] text-white text-base font-semibold shadow-lg hover:bg-[#541D2B] active:scale-95 transition-all"
             >
-              <span>Get a Quote / Enquiry</span>
+              <span>{t("nav.enquiry")}</span>
             </a>
           </nav>
         </div>

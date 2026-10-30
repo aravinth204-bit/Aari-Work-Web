@@ -9,6 +9,7 @@ export const enquiries = pgTable("enquiries", {
   budget: varchar("budget", { length: 60 }),
   city: varchar("city", { length: 120 }),
   message: text("message"),
+  adminNotes: text("admin_notes"),
   status: varchar("status", { length: 30 }).notNull().default("new"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -27,4 +28,3 @@ export const galleryImages = pgTable("gallery_images", {
 
 export type GalleryImageRecord = typeof galleryImages.$inferSelect;
 export type NewGalleryImageRecord = typeof galleryImages.$inferInsert;
-

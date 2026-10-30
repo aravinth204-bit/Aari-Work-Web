@@ -15,6 +15,7 @@ export default function EnquiryForm() {
     budget: "",
     city: "",
     message: "",
+    website_url_check: "", // Honeypot trap for bots
   });
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [error, setError] = useState("");
@@ -82,6 +83,20 @@ export default function EnquiryForm() {
 
   return (
     <form onSubmit={submit} className="rounded-3xl bg-[#FFFFFF] p-6 md:p-8 ring-1 ring-[#D8C19A] shadow-lg space-y-4">
+      {/* Hidden honeypot field to trap spam bots silently */}
+      <div className="hidden" aria-hidden="true" style={{ display: "none" }}>
+        <label htmlFor="website_url_check">Do not fill this</label>
+        <input
+          id="website_url_check"
+          type="text"
+          name="website_url_check"
+          tabIndex={-1}
+          autoComplete="off"
+          value={form.website_url_check}
+          onChange={(e) => set("website_url_check", e.target.value)}
+        />
+      </div>
+
       <div className="grid md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="enquiry-name" className="text-xs font-medium text-[#3A2025]/80">Your Name *</label>

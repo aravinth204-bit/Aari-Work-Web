@@ -1,13 +1,18 @@
+"use client";
+
 import HeroMedia from "@/components/HeroMedia";
 import { site } from "@/lib/site";
-
-const proof = [
-  { value: "2,500+", label: "Brides dressed" },
-  { value: "100%", label: "Hand-worked" },
-  { value: "All-India", label: "Delivery" },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function Hero() {
+  const { locale, t } = useI18n();
+
+  const proof = [
+    { value: "2,500+", label: locale === "ta" ? "மணப்பெண்கள்" : "Brides dressed" },
+    { value: "100%", label: locale === "ta" ? "கைவினை வேலை" : "Hand-worked" },
+    { value: locale === "ta" ? "அனைத்து ஊர்களுக்கும்" : "All-India", label: locale === "ta" ? "டெலிவரி" : "Delivery" },
+  ];
+
   return (
     <section className="relative min-h-[100dvh] overflow-hidden bg-[#F8F3EC]">
       <div className="mx-auto grid min-h-[100dvh] max-w-6xl items-center gap-12 px-4 pb-16 pt-28 md:grid-cols-[1.05fr_0.95fr] md:gap-8 md:pb-20 md:pt-24">
@@ -15,18 +20,29 @@ export default function Hero() {
         <div className="relative z-10">
           <p className="inline-flex items-center gap-2 rounded-full border border-[#3A2025]/15 bg-[#FFFFFF]/60 px-3.5 py-1.5 text-xs font-medium text-[#3A2025]/80 backdrop-blur-sm">
             <span className="h-1.5 w-1.5 rounded-full bg-[#1F4E4A]" aria-hidden="true" />
-            Hand-stitched in {site.city}
+            {locale === "ta" ? `${site.city}-ல் கைவண்ணம்` : `Hand-stitched in ${site.city}`}
           </p>
 
-          <h1 className="mt-6 text-balance font-serif-display text-[clamp(2.15rem,6.2vw,4rem)] leading-[1] tracking-[-0.02em] text-[#3A2025]">
-            Heirloom aari work,
-            <br />
-            <em className="font-normal italic">stitched to your measure.</em>
+          <h1 className="mt-6 text-balance font-serif-display text-[clamp(2.15rem,6.2vw,4rem)] leading-[1.08] tracking-[-0.02em] text-[#3A2025]">
+            {locale === "ta" ? (
+              <>
+                பாரம்பரிய ஆரி கலை,
+                <br />
+                <em className="font-normal italic">உங்கள் அளவுக்கு ஏற்ப.</em>
+              </>
+            ) : (
+              <>
+                Heirloom aari work,
+                <br />
+                <em className="font-normal italic">stitched to your measure.</em>
+              </>
+            )}
           </h1>
 
           <p className="mt-6 max-w-md text-base leading-relaxed text-[#3A2025]/80">
-            Bridal and party-wear blouses in gold zari, kundan and bead — hand-worked by{" "}
-            {site.owner} and her team, with a fitting trial before delivery.
+            {locale === "ta"
+              ? `மணப்பெண் மற்றும் விசேஷங்களுக்கான தங்க ஜரி, குந்தன் மற்றும் மணி வேலைப்பாடுகள் — ${site.owner} மற்றும் குழுவினரால் நேர்த்தியாக வடிவமைக்கப்படுகிறது.`
+              : `Bridal and party-wear blouses in gold zari, kundan and bead — hand-worked by ${site.owner} and her team, with a fitting trial before delivery.`}
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -34,13 +50,13 @@ export default function Hero() {
               href="#enquiry"
               className="rounded-full bg-[#6B2638] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#541D2B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2"
             >
-              Get a quote
+              {t("hero.cta_enquiry")}
             </a>
             <a
               href="#gallery"
               className="rounded-full border border-[#3A2025]/25 px-6 py-3 text-sm font-medium text-[#3A2025] transition hover:border-[#3A2025]/60 hover:bg-[#FFFFFF]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2"
             >
-              See recent work
+              {t("hero.cta_gallery")}
             </a>
           </div>
 
