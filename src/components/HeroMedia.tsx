@@ -22,18 +22,9 @@ export default function HeroMedia() {
     if (!video) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isSmallScreen = window.matchMedia("(max-width: 767px)").matches;
     const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
-    const effectiveType = connection?.effectiveType;
 
-    if (
-      reduced ||
-      isSmallScreen ||
-      connection?.saveData ||
-      effectiveType === "slow-2g" ||
-      effectiveType === "2g" ||
-      effectiveType === "3g"
-    ) {
+    if (reduced || connection?.saveData) {
       return;
     }
 
@@ -42,12 +33,14 @@ export default function HeroMedia() {
     const play = () => {
       if (cancelled || document.visibilityState !== "visible") return;
       video.play().catch(() => {
-        // Autoplay can be blocked (low-power mode, battery saver). The poster
-        // image stays visible, so the hero remains complete.
+        // Autoplay can be blocked on some low-power settings. Poster stays visible.
       });
     };
 
-    const timer = window.setTimeout(play, 1400);
+    // Attempt playback immediately and after brief layout settle
+    play();
+    const timer = window.setTimeout(play, 500);
+
     const onVisibility = () => {
       if (document.visibilityState === "visible") play();
     };
@@ -75,10 +68,11 @@ export default function HeroMedia() {
 
       <video
         ref={videoRef}
+        autoPlay
         muted
         loop
         playsInline
-        preload="none"
+        preload="metadata"
         aria-hidden="true"
         onPlaying={() => setIsPlaying(true)}
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 motion-reduce:hidden ${
