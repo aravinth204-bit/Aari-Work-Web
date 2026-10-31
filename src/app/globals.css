@@ -26,6 +26,10 @@
   --color-gold-deep: #7E5C30;
   --color-whatsapp: #0F7A6C;
   --color-whatsapp-hover: #0B665C;
+
+  /* MotionSites Easing Curves */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html {
@@ -54,12 +58,164 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Smooth anchor scrolling is handled natively via CSS. */
-
 body {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Tamil",
     sans-serif;
   overflow-x: hidden;
+}
+
+/* --- MOTIONSITES LUXURY TECHNIQUES --- */
+
+/* 1. MotionSites Liquid-Glass Surface with Golden Hairline Rim */
+.liquid-glass {
+  position: relative;
+  background: rgba(255, 255, 255, 0.65);
+  background-blend-mode: luminosity;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px -10px rgba(58, 32, 37, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.liquid-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.2px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(176, 138, 87, 0.5) 0%,
+    rgba(216, 193, 154, 0.2) 25%,
+    rgba(255, 255, 255, 0) 50%,
+    rgba(216, 193, 154, 0.2) 75%,
+    rgba(107, 38, 56, 0.4) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+/* 2. MotionSites Staggered Blur-Rise & Settle-Zoom Keyframes */
+@keyframes motionBlurRise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0px);
+  }
+}
+
+@keyframes motionFadeRise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes motionSettleZoom {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes hoopGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 35px 2px rgba(176, 138, 87, 0.25), 0 36px 90px -32px rgba(58, 32, 37, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 55px 10px rgba(176, 138, 87, 0.4), 0 36px 90px -32px rgba(58, 32, 37, 0.65);
+  }
+}
+
+.motion-blur-rise {
+  animation: motionBlurRise 1100ms var(--ease-out-expo) var(--delay, 0ms) paused both;
+}
+
+.motion-fade-rise {
+  animation: motionFadeRise 950ms var(--ease-out-expo) var(--delay, 0ms) paused both;
+}
+
+.motion-settle-zoom {
+  animation: motionSettleZoom 1600ms var(--ease-out-expo) paused both;
+}
+
+/* When preloader curtain opens or is bypassed, run hero entrance animations */
+html.hero-go .motion-blur-rise,
+html.hero-go .motion-fade-rise,
+html.hero-go .motion-settle-zoom {
+  animation-play-state: running;
+}
+
+.hoop-glow {
+  animation: hoopGlowPulse 4000ms ease-in-out infinite;
+}
+
+/* 3. MotionSites Gallery 3D Tilt, Shimmer & Lightbox Motion */
+.gallery-card {
+  transition: transform 600ms var(--ease-out-quint), box-shadow 600ms var(--ease-out-quint), ring 400ms ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.gallery-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 40px -15px rgba(58, 32, 37, 0.25), 0 0 25px 2px rgba(176, 138, 87, 0.2);
+}
+
+.gallery-card .card-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0) 50%,
+    rgba(176, 138, 87, 0.08) 100%
+  );
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out-expo);
+  pointer-events: none;
+}
+
+.gallery-card:hover .card-shine {
+  opacity: 1;
+}
+
+/* 4. MotionSites Process Interactive Stepper Styles */
+.process-step-active {
+  background: linear-gradient(135deg, #6B2638 0%, #4D1825 100%);
+  box-shadow: 0 12px 30px -8px rgba(107, 38, 56, 0.4), 0 0 20px 1px rgba(176, 138, 87, 0.25);
+}
+
+.process-thread-glow {
+  box-shadow: 0 0 12px 2px rgba(176, 138, 87, 0.6);
+}
+
+.process-card-elevate {
+  transition: transform 500ms var(--ease-out-quint), box-shadow 500ms var(--ease-out-quint);
+}
+
+.process-card-elevate:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 48px -12px rgba(58, 32, 37, 0.35);
+}
+
+/* Category Filter Pill Active Glow */
+.filter-pill-active {
+  background: linear-gradient(135deg, #6B2638 0%, #541D2B 100%);
+  box-shadow: 0 4px 15px rgba(107, 38, 56, 0.35), 0 0 12px rgba(176, 138, 87, 0.3);
 }
 
 /* Smooth & Natural Scroll Reveal */
@@ -69,20 +225,6 @@ body {
   transition: opacity 900ms cubic-bezier(0.16, 1, 0.3, 1), transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
   backface-visibility: hidden;
-}
-
-@media (min-width: 640px) {
-  .reveal {
-    transform: translate3d(0, 28px, 0);
-    transition: opacity 950ms cubic-bezier(0.16, 1, 0.3, 1), transform 950ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-}
-
-@media (min-width: 1024px) {
-  .reveal {
-    transform: translate3d(0, 32px, 0);
-    transition: opacity 1000ms cubic-bezier(0.16, 1, 0.3, 1), transform 1000ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
 }
 
 .reveal.is-visible {
@@ -111,224 +253,16 @@ body {
   background-image: repeating-linear-gradient(90deg, #B08A57 0 6px, transparent 6px 12px);
 }
 
-/* Hardware-Accelerated 60FPS Hero Entrance Animations */
-@keyframes heroFadeUp14 {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 14px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes heroFadeUp16 {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 16px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes heroFadeUp18 {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 18px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes heroFadeUp24 {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 24px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-.hero-animate-eyebrow,
-.hero-animate-heading,
-.hero-animate-paragraph,
-.hero-animate-cta-primary,
-.hero-animate-cta-secondary {
-  opacity: 0;
-  will-change: opacity, transform;
-  backface-visibility: hidden;
-}
-
-/* Mobile: quick entrance */
-.hero-animate-eyebrow {
-  animation: heroFadeUp14 800ms cubic-bezier(0.16, 1, 0.3, 1) 120ms forwards;
-}
-
-.hero-animate-heading {
-  animation: heroFadeUp24 950ms cubic-bezier(0.16, 1, 0.3, 1) 240ms forwards;
-}
-
-.hero-animate-paragraph {
-  animation: heroFadeUp18 900ms cubic-bezier(0.16, 1, 0.3, 1) 360ms forwards;
-}
-
-.hero-animate-cta-primary {
-  animation: heroFadeUp16 850ms cubic-bezier(0.16, 1, 0.3, 1) 480ms forwards;
-}
-
-.hero-animate-cta-secondary {
-  animation: heroFadeUp16 850ms cubic-bezier(0.16, 1, 0.3, 1) 600ms forwards;
-}
-
-/* Desktop: editorial entrance */
-@media (min-width: 768px) {
-  .hero-animate-eyebrow {
-    animation: heroFadeUp14 1000ms cubic-bezier(0.16, 1, 0.3, 1) 200ms forwards;
-  }
-  .hero-animate-heading {
-    animation: heroFadeUp24 1200ms cubic-bezier(0.16, 1, 0.3, 1) 320ms forwards;
-  }
-  .hero-animate-paragraph {
-    animation: heroFadeUp18 1100ms cubic-bezier(0.16, 1, 0.3, 1) 440ms forwards;
-  }
-  .hero-animate-cta-primary {
-    animation: heroFadeUp16 1000ms cubic-bezier(0.16, 1, 0.3, 1) 560ms forwards;
-  }
-  .hero-animate-cta-secondary {
-    animation: heroFadeUp16 1000ms cubic-bezier(0.16, 1, 0.3, 1) 680ms forwards;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .reveal,
-  .hero-animate-eyebrow,
-  .hero-animate-heading,
-  .hero-animate-paragraph,
-  .hero-animate-cta-primary,
-  .hero-animate-cta-secondary {
+  .motion-blur-rise,
+  .motion-fade-rise,
+  .motion-settle-zoom,
+  .hoop-glow {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
-  }
-
-  .hoop-arc {
-    animation: none !important;
-    stroke-dashoffset: 0 !important;
-  }
-}
-
-/* Gold Shimmer CTA Button Effect (Point 7) */
-.cta-shimmer {
-  position: relative;
-  overflow: hidden;
-  will-change: transform;
-}
-
-.cta-shimmer::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -150%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    120deg,
-    transparent 0%,
-    rgba(216, 193, 154, 0.28) 45%,
-    rgba(176, 138, 87, 0.35) 50%,
-    rgba(216, 193, 154, 0.28) 55%,
-    transparent 100%
-  );
-  transform: translate3d(0, 0, 0) skewX(-20deg);
-  will-change: transform, left;
-  pointer-events: none;
-  z-index: 1;
-}
-
-@media (hover: hover) {
-  .cta-shimmer:hover::before {
-    animation: ctaGoldShimmer 850ms ease-in-out forwards;
-  }
-}
-
-@keyframes ctaGoldShimmer {
-  0% {
-    left: -150%;
-  }
-  100% {
-    left: 200%;
-  }
-}
-
-.cta-shimmer > * {
-  position: relative;
-  z-index: 2;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cta-shimmer::before {
-    display: none !important;
-    animation: none !important;
-  }
-}
-
-
-
-
-/* Luxury Gold Footer Ambient Shine */
-.footer-shine {
-  position: relative;
-}
-
-.footer-shine::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -60%;
-  width: 50%;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(216, 193, 154, 0.2) 20%,
-    rgba(255, 245, 225, 0.85) 50%,
-    rgba(216, 193, 154, 0.2) 80%,
-    transparent 100%
-  );
-  box-shadow: 0 0 12px 1px rgba(216, 193, 154, 0.6);
-  animation: footerShineLoop 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none;
-  z-index: 20;
-}
-
-@keyframes footerShineLoop {
-  0% {
-    left: -60%;
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-  50% {
-    left: 120%;
-    opacity: 0;
-  }
-  100% {
-    left: 120%;
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .footer-shine::before {
-    display: none !important;
+    filter: none !important;
   }
 }

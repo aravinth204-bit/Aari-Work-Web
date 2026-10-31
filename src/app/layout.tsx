@@ -4,6 +4,8 @@ import "./globals.css";
 import { site, services } from "@/lib/site";
 import Analytics from "@/components/Analytics";
 import { I18nProvider } from "@/lib/i18n";
+import LuxuryCursor from "@/components/LuxuryCursor";
+import LuxuryPreloader from "@/components/LuxuryPreloader";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -174,6 +176,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <I18nProvider>
+          <LuxuryPreloader />
+          <LuxuryCursor />
           {children}
         </I18nProvider>
         {gaId ? <Analytics gaId={gaId} /> : null}

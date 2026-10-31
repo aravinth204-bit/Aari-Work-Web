@@ -123,13 +123,13 @@ export default function InteractiveProcess() {
               e.preventDefault();
               setModalStepIndex(index);
             }}
-            className="relative block w-full aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-[#D8C19A] bg-[#3A2025] cursor-pointer group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B08A57] focus-visible:ring-offset-2"
+            className="process-card-elevate relative block w-full aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-[#D8C19A]/80 hover:ring-2 hover:ring-[#B08A57] bg-[#3A2025] cursor-pointer group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B08A57] focus-visible:ring-offset-2"
           >
             {/* Background Video */}
             <SmartVideo
               src={step.mediaSrc}
               poster={step.poster}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
             />
 
             {/* Dark Gradient Overlay for readability */}
@@ -140,7 +140,7 @@ export default function InteractiveProcess() {
               <span className="h-9 w-9 rounded-full bg-[#B08A57] text-[#3A2025] flex items-center justify-center font-serif-display text-sm font-bold shadow-lg ring-2 ring-white/40">
                 {step.n}
               </span>
-              <span className="rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[11px] text-[#D8C19A] font-medium border border-white/20 shadow-md">
+              <span className="rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[11px] text-[#D8C19A] font-medium border border-white/20 shadow-md group-hover:bg-[#6B2638] transition-colors">
                 Tap to expand
               </span>
             </div>
@@ -150,7 +150,7 @@ export default function InteractiveProcess() {
               <span className="inline-block rounded-md bg-[#6B2638] px-2.5 py-0.5 text-[10px] font-semibold text-[#D8C19A] mb-1.5 ring-1 ring-[#D8C19A]/30">
                 Step {step.n} · {step.sub}
               </span>
-              <h3 className="font-serif-display text-xl sm:text-2xl text-white font-bold leading-tight">
+              <h3 className="font-serif-display text-xl sm:text-2xl text-white font-bold leading-tight group-hover:text-[#F1E7DC] transition-colors">
                 {step.t}
               </h3>
               <p className="mt-2 text-xs sm:text-sm text-white/90 font-light leading-relaxed">
@@ -159,7 +159,7 @@ export default function InteractiveProcess() {
 
               <div className="mt-3.5 flex items-center justify-between text-xs text-[#D8C19A] font-medium pt-2.5 border-t border-white/15">
                 <span>{step.highlightText}</span>
-                <span className="text-base" aria-hidden="true">→</span>
+                <span className="text-base transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
               </div>
             </div>
           </a>
@@ -176,8 +176,15 @@ export default function InteractiveProcess() {
       >
         {/* LEFT COLUMN: 4 Step Buttons / Interactive List */}
         <div className="lg:col-span-5 flex flex-col gap-3 relative">
-          {/* Connecting Vertical Stepper Line */}
-          <div className="absolute left-[26px] top-6 bottom-6 w-0.5 bg-[#D8C19A] -z-0" />
+          {/* Connecting Vertical Stepper Line with Active Gold Glow */}
+          <div className="absolute left-[26px] top-6 bottom-6 w-0.5 bg-[#D8C19A]/40 -z-0" />
+          <div
+            className="absolute left-[25.5px] w-1 bg-[#B08A57] process-thread-glow rounded-full transition-all duration-500 ease-out -z-0"
+            style={{
+              top: `${activeIndex * 25 + 4}%`,
+              height: "22%",
+            }}
+          />
 
           {processSteps.map((step, index) => {
             const isActive = index === activeIndex;
@@ -187,17 +194,17 @@ export default function InteractiveProcess() {
                 key={step.n}
                 aria-pressed={isActive}
                 onClick={() => setActiveIndex(index)}
-                className={`group relative text-left p-5 rounded-3xl border transition-all duration-300 z-10 flex items-start gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2 ${
+                className={`group relative text-left p-5 rounded-3xl border transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] z-10 flex items-start gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2 ${
                   isActive
-                    ? "bg-[#6B2638] text-white border-[#6B2638] shadow-xl scale-[1.02]"
-                    : "bg-[#FFFFFF] text-[#3A2025] border-[#D8C19A] hover:border-[#B08A57] hover:bg-[#F1E7DC]"
+                    ? "process-step-active text-white border-[#B08A57]/60 scale-[1.03]"
+                    : "bg-[#FFFFFF] text-[#3A2025] border-[#D8C19A] hover:border-[#B08A57] hover:bg-[#F1E7DC] hover:translate-x-1"
                 }`}
               >
                 {/* Step Number Circle / Badge */}
                 <div
-                  className={`shrink-0 h-12 w-12 rounded-2xl grid place-items-center font-serif-display text-base font-bold transition-all ${
+                  className={`shrink-0 h-12 w-12 rounded-2xl grid place-items-center font-serif-display text-base font-bold transition-all duration-300 ${
                     isActive
-                      ? "bg-[#D8C19A] text-[#3A2025] shadow-md ring-2 ring-white/30"
+                      ? "bg-[#D8C19A] text-[#3A2025] shadow-lg ring-2 ring-white/40 scale-105"
                       : "bg-[#F1E7DC] text-[#6B2638] group-hover:bg-[#6B2638] group-hover:text-white"
                   }`}
                 >
@@ -208,7 +215,7 @@ export default function InteractiveProcess() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <span
-                      className={`text-[11px] font-medium ${
+                      className={`text-[11px] font-medium tracking-wide uppercase ${
                         isActive ? "text-[#D8C19A]" : "text-gold-deep"
                       }`}
                     >
@@ -225,8 +232,8 @@ export default function InteractiveProcess() {
                   </h3>
 
                   <p
-                    className={`mt-1 text-sm font-light leading-relaxed line-clamp-2 ${
-                      isActive ? "text-white/85" : "text-[#3A2025]/80"
+                    className={`mt-1.5 text-xs sm:text-sm font-light leading-relaxed line-clamp-2 ${
+                      isActive ? "text-white/90" : "text-[#3A2025]/80"
                     }`}
                   >
                     {step.d}
@@ -235,7 +242,7 @@ export default function InteractiveProcess() {
 
                 {/* Active Pointer Arrow Indicator */}
                 {isActive && (
-                  <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-[#6B2638]" />
+                  <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-[#4D1825]" />
                 )}
               </button>
             );

@@ -7,6 +7,7 @@ import { gallery as defaultGallery, GalleryItem, site } from "@/lib/site";
 import Reveal from "@/components/Reveal";
 import { useMounted } from "@/lib/use-mounted";
 import { useFocusTrap } from "@/lib/use-focus-trap";
+import TiltSpotlightCard from "@/components/TiltSpotlightCard";
 
 export default function Gallery() {
   const [items, setItems] = useState<GalleryItem[]>(defaultGallery);
@@ -103,7 +104,7 @@ export default function Gallery() {
   return (
     <div>
       {/* Category Filter Buttons */}
-      <div className="flex flex-wrap justify-center gap-2 mb-8">
+      <div className="flex flex-wrap justify-center gap-2 mb-10">
         {categories.map((cat) => (
           <button
             type="button"
@@ -113,10 +114,10 @@ export default function Gallery() {
               setActiveCategory(cat);
               setVisibleCount(6); // Reset pagination when switching filter
             }}
-            className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2 ${
+            className={`px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2 ${
               activeCategory === cat
-                ? "bg-[#6B2638] text-white shadow-md border border-[#6B2638]"
-                : "bg-[#FFFFFF] text-[#6B2638] border border-[#D8C19A] hover:border-[#B08A57] hover:bg-[#F1E7DC]"
+                ? "filter-pill-active text-white border border-[#D8C19A]/60 scale-105"
+                : "bg-[#FFFFFF] text-[#6B2638] border border-[#D8C19A] hover:border-[#B08A57] hover:bg-[#F1E7DC] hover:scale-102"
             }`}
           >
             {cat}
@@ -125,43 +126,42 @@ export default function Gallery() {
       </div>
 
       {/* Grid Layout: 3 Columns Desktop (3 top + 3 bottom = 6 initial) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-7">
         {displayedItems.map((g, index) => (
-          <Reveal key={g.id || `${g.src}-${index}`} delay={(index % 6) * 120}>
-            <a
-              href={g.src}
-              onClick={(e) => {
-                e.preventDefault();
-                openLightbox(index);
-              }}
-              aria-label={`Open ${g.title} in the gallery`}
-              className="group relative block w-full cursor-pointer overflow-hidden rounded-3xl aspect-[3/4] bg-[#FFFFFF] text-left shadow-sm ring-1 ring-[#D8C19A] hover:ring-2 hover:ring-[#B08A57] hover:shadow-xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2"
+          <Reveal key={`${activeCategory}-${g.id || g.src}-${index}`} delay={(index % 6) * 75}>
+            <TiltSpotlightCard
+              onClick={() => openLightbox(index)}
+              ariaLabel={`Open ${g.title} in the gallery`}
+              className="gallery-card group block w-full rounded-3xl aspect-[3/4] bg-[#FFFFFF] text-left shadow-sm ring-1 ring-[#D8C19A]/60 hover:ring-2 hover:ring-[#B08A57] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2"
             >
               <Image
                 src={g.src}
                 alt={g.title}
                 fill
                 sizes="(max-width: 768px) 50vw, 33vw"
-                className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] motion-reduce:group-hover:scale-100 will-change-transform"
+                className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-108 motion-reduce:group-hover:scale-100 will-change-transform"
                 style={{ transform: "translate3d(0, 0, 0)" }}
               />
+              {/* Dynamic specular light shine */}
+              <div className="card-shine" />
+
               {/* Dark gradient overlay with subtle burgundy brand tint on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#3A2025]/85 via-[#3A2025]/25 to-transparent transition-opacity duration-500 opacity-70 group-hover:opacity-85" />
-              <div className="absolute inset-0 bg-[#6B2638]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#3A2025]/90 via-[#3A2025]/30 to-transparent transition-opacity duration-500 opacity-70 group-hover:opacity-85" />
+              <div className="absolute inset-0 bg-[#6B2638]/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
               {/* Top Category Badge */}
-              <span className="absolute top-3 left-3 rounded-full bg-[#3A2025]/80 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-medium text-[#D8C19A] ring-1 ring-[#D8C19A]/30 group-hover:ring-[#B08A57]/60 transition-all duration-500">
+              <span className="absolute top-3 left-3 rounded-full bg-[#3A2025]/85 backdrop-blur-md px-3 py-1 text-[11px] font-medium text-[#D8C19A] ring-1 ring-[#D8C19A]/30 group-hover:ring-[#B08A57]/80 group-hover:bg-[#6B2638]/90 group-hover:text-white transition-all duration-300">
                 {g.cat}
               </span>
 
               {/* Click to Zoom Hint Icon */}
-              <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full bg-[#6B2638]/90 p-2 text-white text-xs shadow-md">
-                Zoom
+              <span className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300 rounded-full bg-[#6B2638] px-2.5 py-1 text-white text-[11px] font-medium shadow-lg border border-[#D8C19A]/40">
+                🔍 Zoom
               </span>
 
               {/* Title & Info */}
-              <div className="absolute inset-x-0 bottom-0 p-4 text-left text-white z-10">
-                <h3 className="font-serif-display text-base md:text-lg text-white leading-tight drop-shadow-sm">
+              <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 text-left text-white z-10 transition-transform duration-300 group-hover:-translate-y-1">
+                <h3 className="font-serif-display text-base md:text-lg text-white leading-tight drop-shadow-sm group-hover:text-[#F1E7DC] transition-colors">
                   {g.title}
                 </h3>
                 {g.desc && (
@@ -169,12 +169,12 @@ export default function Gallery() {
                     {g.desc}
                   </p>
                 )}
-                <span className="mt-2 inline-flex items-center gap-1 text-[11px] text-[#D8C19A] font-medium group-hover:text-white transition-colors duration-500">
-                  <span>View design</span>
-                  <span aria-hidden="true">→</span>
+                <span className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] text-[#D8C19A] font-medium group-hover:text-white transition-colors duration-300">
+                  <span>View full craftsmanship</span>
+                  <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </span>
               </div>
-            </a>
+            </TiltSpotlightCard>
           </Reveal>
         ))}
       </div>
