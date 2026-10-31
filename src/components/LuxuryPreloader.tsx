@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const ATELIER_WORDS = [
   "Handcrafted Silk",
@@ -10,14 +11,25 @@ const ATELIER_WORDS = [
 ];
 
 export default function LuxuryPreloader() {
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [count, setCount] = useState(0);
   const [wordIndex, setWordIndex] = useState(0);
   const [isDone, setIsDone] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
 
+  // If user is accessing the admin portal, bypass preloader completely
+  const isAdmin = pathname?.startsWith("/admin");
+
   useEffect(() => {
     setMounted(true);
+
+    if (isAdmin) {
+      setIsDone(true);
+      setIsHidden(true);
+      document.documentElement.classList.add("hero-go");
+      return;
+    }
 
     // Only skip if user prefers reduced motion (allows preloader to show on page refresh)
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -77,7 +89,7 @@ export default function LuxuryPreloader() {
     };
   }, []);
 
-  if (!mounted || isHidden) return null;
+  if (!mounted || isHidden || isAdmin) return null;
 
   return (
     <div
