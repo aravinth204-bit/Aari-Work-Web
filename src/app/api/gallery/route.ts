@@ -9,6 +9,7 @@ import {
   saveLocalGalleryItem,
   deleteLocalGalleryItem,
 } from "@/lib/local-storage";
+import { deleteCloudinaryImage, getCloudinaryConfig } from "@/lib/cloudinary";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +18,11 @@ function allowedImageHosts(): Set<string> {
     .split(",")
     .map((host) => host.trim().toLowerCase())
     .filter(Boolean);
+  const cloudinaryHost = process.env.CLOUDINARY_CLOUD_NAME?.trim()
+    ? ["res.cloudinary.com"]
+    : [];
 
-  return new Set(["images.unsplash.com", ...fromEnv]);
+  return new Set(["images.unsplash.com", ...cloudinaryHost, ...fromEnv]);
 }
 
 function normalizeImageUrl(raw: string): string | null {
@@ -149,14 +153,73 @@ export async function DELETE(request: Request) {
 
     if (id.startsWith("db-") && isDbConfigured) {
       const dbId = Number(id.replace("db-", ""));
+      if (!Number.isSafeInteger(dbId) || dbId <= 0) {
+        return NextResponse.json({ error: "Invalid image id" }, { status: 400 });
+      }
+
+      const [image] = await db
+        .select({ imageUrl: galleryImages.imageUrl })
+        .from(galleryImages)
+        .where(eq(galleryImages.id, dbId))
+        .limit(1);
+      if (!image) {
+        return NextResponse.json({ error: "Image not found" }, { status: 404 });
+      }
+
+      const cloudDeleteError = await deleteStoredCloudinaryImage(image.imageUrl);
+      if (cloudDeleteError) return cloudDeleteError;
       await db.delete(galleryImages).where(eq(galleryImages.id, dbId));
       return NextResponse.json({ ok: true });
-    } else {
-      deleteLocalGalleryItem(id);
-      return NextResponse.json({ ok: true });
     }
+
+    const localImage = getLocalGallery().find((item) => item.id === id);
+    if (!localImage) {
+      return NextResponse.json({ error: "Image not found" }, { status: 404 });
+    }
+
+    const cloudDeleteError = await deleteStoredCloudinaryImage(localImage.src);
+    if (cloudDeleteError) return cloudDeleteError;
+    if (!deleteLocalGalleryItem(id)) {
+      return NextResponse.json({ error: "Failed to remove image from gallery" }, { status: 500 });
+    }
+    return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Gallery DELETE error", err);
     return NextResponse.json({ error: "Failed to delete image" }, { status: 500 });
+  }
+}
+
+async function deleteStoredCloudinaryImage(
+  imageUrl: string,
+): Promise<NextResponse | null> {
+  let url: URL;
+  try {
+    url = new URL(imageUrl);
+  } catch {
+    return null;
+  }
+
+  if (url.hostname !== "res.cloudinary.com") return null;
+
+  try {
+    const config = getCloudinaryConfig();
+    if (!config) {
+      return NextResponse.json(
+        { error: "Cloudinary is not configured. The gallery item was kept." },
+        { status: 503 },
+      );
+    }
+
+    await deleteCloudinaryImage(imageUrl, config);
+    return null;
+  } catch (error) {
+    console.error("Cloudinary image deletion error:", error);
+    return NextResponse.json(
+      {
+        error:
+          "Could not delete the cloud image. The gallery item was kept. Check Cloudinary configuration and try again.",
+      },
+      { status: 502 },
+    );
   }
 }

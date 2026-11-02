@@ -191,11 +191,20 @@ export default function AdminPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const supportedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!supportedTypes.includes(file.type)) {
+      setGalleryMsg("Only JPEG, PNG, and WebP images are supported.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setGalleryMsg("Image size exceeds the 10MB limit.");
+      e.target.value = "";
+      return;
+    }
+
     setUploadingFile(true);
     setGalleryMsg("");
-
-    const formData = new FormData();
-    formData.append("file", file);
 
     try {
       const res = await fetch("/api/upload", {
@@ -203,22 +212,41 @@ export default function AdminPage() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        body: formData,
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setGalleryMsg(data.error || "File upload failed.");
-      } else if (typeof data.imageUrl !== "string" || !data.imageUrl) {
-        setGalleryMsg("Upload succeeded but did not return an image URL.");
+        setGalleryMsg(data.error || "Could not prepare image upload.");
       } else {
-        setNewImage((prev) => ({
-          ...prev,
-          imageUrl: data.imageUrl,
-          title: prev.title || file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "),
-        }));
-        setGalleryMsg("📸 Photo uploaded successfully! Now click 'Publish to Live Gallery'.");
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", file);
+        uploadFormData.append("api_key", data.apiKey);
+        uploadFormData.append("timestamp", data.timestamp);
+        uploadFormData.append("folder", data.folder);
+        uploadFormData.append("signature", data.signature);
+
+        const uploadResponse = await fetch(
+          `https://api.cloudinary.com/v1_1/${encodeURIComponent(data.cloudName)}/image/upload`,
+          { method: "POST", body: uploadFormData },
+        );
+        const uploadData = await uploadResponse.json();
+
+        if (!uploadResponse.ok) {
+          setGalleryMsg(uploadData.error?.message || "Cloud image upload failed.");
+        } else if (
+          typeof uploadData.secure_url !== "string" ||
+          !uploadData.secure_url
+        ) {
+          setGalleryMsg("Upload succeeded but did not return an image URL.");
+        } else {
+          setNewImage((prev) => ({
+            ...prev,
+            imageUrl: uploadData.secure_url,
+            title: prev.title || file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "),
+          }));
+          setGalleryMsg("📸 Photo uploaded successfully! Now click 'Publish to Live Gallery'.");
+        }
       }
     } catch {
       setGalleryMsg("Network error during file upload.");
@@ -268,6 +296,7 @@ export default function AdminPage() {
           Authorization: `Bearer ${token}`,
         },
       });
+      const data = await res.json();
       if (res.ok) {
         setGalleryItems((prev) =>
           prev.filter((item) => item.id !== deletingGalleryItem.id),
@@ -275,7 +304,7 @@ export default function AdminPage() {
         setDeletingGalleryItem(null);
         setDeleteError("");
       } else {
-        setDeleteError("Failed to delete photo. Please try again.");
+        setDeleteError(data.error || "Failed to delete photo. Please try again.");
       }
     } catch (err) {
       console.error("Delete photo error:", err);
@@ -981,21 +1010,24 @@ export default function AdminPage() {
                             sizes="200px"
                             className="object-cover"
                           />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setDeleteError("");
-                              setDeletingGalleryItem(item);
-                            }}
-                            className="absolute top-2 right-2 inline-flex min-h-10 items-center gap-1.5 rounded-full bg-red-700 px-3 text-xs font-semibold text-white shadow-md transition hover:bg-red-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
-                            title="Delete this photo"
-                            aria-label={`Delete ${item.title}`}
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            <span>Delete</span>
-                          </button>
+                          {(item.id.startsWith("db-") ||
+                            item.id.startsWith("local-")) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteError("");
+                                setDeletingGalleryItem(item);
+                              }}
+                              className="absolute top-2 right-2 inline-flex min-h-10 items-center gap-1.5 rounded-full bg-red-700 px-3 text-xs font-semibold text-white shadow-md transition hover:bg-red-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
+                              title="Delete this photo"
+                              aria-label={`Delete ${item.title}`}
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              <span>Delete</span>
+                            </button>
+                          )}
                           <span className="absolute bottom-2 left-2 bg-[#2A151A]/80 backdrop-blur-md text-[#D8C19A] text-[10px] px-2 py-0.5 rounded-full font-medium">
                             {item.cat}
                           </span>

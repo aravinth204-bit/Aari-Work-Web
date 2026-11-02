@@ -24,6 +24,15 @@ Fill in `.env`:
 | `NEXT_PUBLIC_SITE_URL` | Public origin used for canonical/OG/JSON-LD (auto-detected on Vercel) |
 | `NEXT_PUBLIC_GA_ID` | Optional GA4 measurement ID (`G-XXXXXXXXXX`) |
 | `GALLERY_IMAGE_HOSTS` | Optional comma-separated hosts for gallery images |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name used for gallery uploads |
+| `CLOUDINARY_API_KEY` | Cloudinary API key used to sign upload requests |
+| `CLOUDINARY_API_SECRET` | Private Cloudinary API secret used by server-side APIs |
+
+Create a Cloudinary account and copy the cloud name, API key, and API secret from
+Cloudinary Console > Settings > API Keys. Add them to `.env.local` for local
+development and to the Vercel project's Environment Variables for production.
+Keep `CLOUDINARY_API_SECRET` server-side; never expose it with a `NEXT_PUBLIC_`
+prefix. Redeploy after adding or changing production environment variables.
 
 Create the database tables:
 
@@ -101,8 +110,8 @@ drizzle/          Generated SQL migrations
 
 ## Notes
 
-- Gallery images uploaded through the API are stored as URLs only. File uploads need
-  an external object store; reference photos are currently sent over WhatsApp.
+- Admin image uploads are signed by the server and sent directly from the browser
+  to Cloudinary. Deleting a managed gallery image also removes its Cloudinary file.
 - On Vercel, `NEXT_PUBLIC_SITE_URL` is derived from `VERCEL_PROJECT_PRODUCTION_URL`
   automatically. Set it explicitly only for a custom domain.
 - Analytics is disabled unless `NEXT_PUBLIC_GA_ID` is set. WhatsApp and phone clicks
