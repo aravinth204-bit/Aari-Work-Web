@@ -43,6 +43,11 @@ npm run db:generate
 npm run db:migrate
 ```
 
+Production gallery publishing requires a reachable PostgreSQL database with the
+`gallery_images` table. File-based gallery storage is only used during local
+development, so a database error will now be shown instead of reporting a
+photo as published when it was not saved.
+
 Run the app:
 
 ```bash

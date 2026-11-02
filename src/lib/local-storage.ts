@@ -142,12 +142,8 @@ export function saveLocalGalleryItem(item: {
     createdAt: new Date().toISOString(),
   };
   all.unshift(newItem);
-  try {
-    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-    fs.writeFileSync(galleryFile, JSON.stringify(all, null, 2), "utf8");
-  } catch (err) {
-    console.error("Gallery save error:", err);
-  }
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  fs.writeFileSync(galleryFile, JSON.stringify(all, null, 2), "utf8");
   return newItem;
 }
 

@@ -52,22 +52,24 @@ function normalizeImageUrl(raw: string): string | null {
 }
 
 export async function GET() {
-  try {
-    if (isDbConfigured) {
+  if (isDbConfigured) {
+    try {
       const dbRows = await db.select().from(galleryImages).orderBy(desc(galleryImages.createdAt));
-      if (dbRows && dbRows.length > 0) {
-        const formattedDbItems = dbRows.map((r) => ({
-          id: `db-${r.id}`,
-          src: r.imageUrl,
-          cat: r.category,
-          title: r.title,
-          desc: r.description || "",
-        }));
-        return NextResponse.json({ items: [...formattedDbItems, ...gallery] });
-      }
+      const formattedDbItems = dbRows.map((r) => ({
+        id: `db-${r.id}`,
+        src: r.imageUrl,
+        cat: r.category,
+        title: r.title,
+        desc: r.description || "",
+      }));
+      return NextResponse.json({ items: [...formattedDbItems, ...gallery] });
+    } catch (err) {
+      console.error("Gallery GET database error:", err);
+      return NextResponse.json(
+        { error: "Could not load gallery photos from the database." },
+        { status: 503 },
+      );
     }
-  } catch (err) {
-    console.error("Gallery GET DB fallback:", err);
   }
 
   const localItems = getLocalGallery();
@@ -98,8 +100,8 @@ export async function POST(request: Request) {
       );
     }
 
-    try {
-      if (isDbConfigured) {
+    if (isDbConfigured) {
+      try {
         const [row] = await db
           .insert(galleryImages)
           .values({
@@ -120,9 +122,26 @@ export async function POST(request: Request) {
             desc: row.description || "",
           },
         });
+      } catch (dbErr) {
+        console.error("Gallery database insert failed:", dbErr);
+        return NextResponse.json(
+          {
+            error:
+              "Could not publish this photo because the gallery database could not save it. Check the database connection and gallery_images table.",
+          },
+          { status: 503 },
+        );
       }
-    } catch (dbErr) {
-      console.warn("DB insert failed, falling back to local gallery storage:", dbErr);
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json(
+        {
+          error:
+            "Gallery publishing is not configured for production. Set DATABASE_URL and create the gallery_images table.",
+        },
+        { status: 503 },
+      );
     }
 
     const saved = saveLocalGalleryItem({
