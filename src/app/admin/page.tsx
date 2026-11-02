@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/lib/site";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 
 interface EnquiryRecord {
   id: number;
@@ -70,7 +71,14 @@ export default function AdminPage() {
   const [uploadingFile, setUploadingFile] = useState(false);
   const [addingImage, setAddingImage] = useState(false);
   const [galleryMsg, setGalleryMsg] = useState("");
+  const [deletingGalleryItem, setDeletingGalleryItem] = useState<GalleryItem | null>(null);
+  const [deletingImage, setDeletingImage] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const deleteDialogRef = useRef<HTMLDivElement>(null);
+  const closeDeleteDialog = useCallback(() => setDeletingGalleryItem(null), []);
+
+  useFocusTrap(deleteDialogRef, deletingGalleryItem !== null, closeDeleteDialog);
 
   useEffect(() => {
     const savedToken = localStorage.getItem("aari_admin_token");
@@ -202,10 +210,12 @@ export default function AdminPage() {
 
       if (!res.ok) {
         setGalleryMsg(data.error || "File upload failed.");
+      } else if (typeof data.imageUrl !== "string" || !data.imageUrl) {
+        setGalleryMsg("Upload succeeded but did not return an image URL.");
       } else {
         setNewImage((prev) => ({
           ...prev,
-          imageUrl: data.url,
+          imageUrl: data.imageUrl,
           title: prev.title || file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "),
         }));
         setGalleryMsg("📸 Photo uploaded successfully! Now click 'Publish to Live Gallery'.");
@@ -247,20 +257,31 @@ export default function AdminPage() {
     }
   }
 
-  async function handleDeleteGalleryItem(id: string) {
-    if (!confirm("Are you sure you want to remove this creation from the live gallery?")) return;
+  async function handleDeleteGalleryItem() {
+    if (!deletingGalleryItem) return;
+
+    setDeletingImage(true);
     try {
-      const res = await fetch(`/api/gallery?id=${encodeURIComponent(id)}`, {
+      const res = await fetch(`/api/gallery?id=${encodeURIComponent(deletingGalleryItem.id)}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       if (res.ok) {
-        setGalleryItems((prev) => prev.filter((i) => i.id !== id));
+        setGalleryItems((prev) =>
+          prev.filter((item) => item.id !== deletingGalleryItem.id),
+        );
+        setDeletingGalleryItem(null);
+        setDeleteError("");
+      } else {
+        setDeleteError("Failed to delete photo. Please try again.");
       }
     } catch (err) {
       console.error("Delete photo error:", err);
+      setDeleteError("Network error while deleting photo.");
+    } finally {
+      setDeletingImage(false);
     }
   }
 
@@ -962,13 +983,18 @@ export default function AdminPage() {
                           />
                           <button
                             type="button"
-                            onClick={() => handleDeleteGalleryItem(item.id)}
-                            className="absolute top-2 right-2 bg-red-600/90 hover:bg-red-700 text-white p-1.5 rounded-full shadow-md transition opacity-0 group-hover:opacity-100 cursor-pointer"
+                            onClick={() => {
+                              setDeleteError("");
+                              setDeletingGalleryItem(item);
+                            }}
+                            className="absolute top-2 right-2 inline-flex min-h-10 items-center gap-1.5 rounded-full bg-red-700 px-3 text-xs font-semibold text-white shadow-md transition hover:bg-red-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
                             title="Delete this photo"
+                            aria-label={`Delete ${item.title}`}
                           >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
+                            <span>Delete</span>
                           </button>
                           <span className="absolute bottom-2 left-2 bg-[#2A151A]/80 backdrop-blur-md text-[#D8C19A] text-[10px] px-2 py-0.5 rounded-full font-medium">
                             {item.cat}
@@ -989,6 +1015,51 @@ export default function AdminPage() {
           </div>
         )}
       </main>
+
+      {deletingGalleryItem && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#2A151A]/60 p-4 backdrop-blur-sm">
+          <div
+            ref={deleteDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-gallery-title"
+            aria-describedby="delete-gallery-description"
+            tabIndex={-1}
+            className="w-full max-w-sm rounded-3xl border border-[#D8C19A]/50 bg-white p-6 shadow-2xl outline-none"
+          >
+            <h2 id="delete-gallery-title" className="font-serif text-lg font-bold text-[#6B2638]">
+              Delete this photo?
+            </h2>
+            <p id="delete-gallery-description" className="mt-2 text-sm text-[#3A2025]/75">
+              “{deletingGalleryItem.title}” will be removed from the live gallery. This cannot be undone.
+            </p>
+            {deleteError && (
+              <p role="alert" className="mt-3 text-sm font-medium text-red-700">
+                {deleteError}
+              </p>
+            )}
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                data-autofocus
+                onClick={closeDeleteDialog}
+                disabled={deletingImage}
+                className="min-h-11 rounded-full border border-[#D8C19A] px-5 text-sm font-semibold text-[#3A2025] transition hover:bg-[#F8F3EC] disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteGalleryItem}
+                disabled={deletingImage}
+                className="min-h-11 rounded-full bg-red-700 px-5 text-sm font-semibold text-white transition hover:bg-red-800 disabled:opacity-60"
+              >
+                {deletingImage ? "Deleting..." : "Delete photo"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Internal Notes & Measurements Modal */}
       {activeNoteRecord && (
