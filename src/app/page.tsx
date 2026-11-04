@@ -196,14 +196,14 @@ export default function Home() {
             <span className="text-xs font-medium tracking-[0.16em] text-gold-deep">Get in touch</span>
             <h2 className="font-serif-display text-3xl md:text-4xl text-[#3A2025] mt-2">Book your blouse</h2>
             <p className="mt-4 text-[#3A2025]/80 leading-relaxed max-w-md">
-              Ungal aari work blouse order-a register pannunga. Form submit panna udane, namma team call / WhatsApp-la contact pannuvanga. Enquiry ku charge illa.
+               To order Your Blouse or Get Enquiry fill your Details here.
             </p>
             <div className="mt-8 space-y-3 text-sm text-[#3A2025]">
               <p><a href={`tel:${site.phone}`} className="underline hover:text-[#6B2638]">{site.phoneDisplay}</a></p>
               <p>{site.address}</p>
-              <p>{site.timings}</p>
+              {/* <p>{site.timings}</p> */}
             </div>
-            <div className="mt-6 overflow-hidden rounded-2xl ring-1 ring-[#D8C19A] shadow-sm">
+            {/* <div className="mt-6 overflow-hidden rounded-2xl ring-1 ring-[#D8C19A] shadow-sm">
               <iframe
                 title={`${site.name} location map`}
                 src={site.mapEmbed}
@@ -213,7 +213,7 @@ export default function Home() {
                 referrerPolicy="no-referrer-when-downgrade"
                 className="block w-full border-0"
               />
-            </div>
+            </div> */}
           </Reveal>
           <Reveal delay={100}>
             <EnquiryForm />
