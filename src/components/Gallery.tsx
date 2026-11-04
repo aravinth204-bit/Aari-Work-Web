@@ -128,7 +128,7 @@ export default function Gallery() {
       {/* Grid Layout: 3 Columns Desktop (3 top + 3 bottom = 6 initial) */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-7">
         {displayedItems.map((g, index) => (
-          <Reveal key={`${activeCategory}-${g.id || g.src}-${index}`} delay={(index % 6) * 75}>
+          <Reveal key={`${activeCategory}-${g.id || g.src}-${index}`} delay={(index % 6) * 220}>
             <TiltSpotlightCard
               onClick={() => openLightbox(index)}
               ariaLabel={`Open ${g.title} in the gallery`}

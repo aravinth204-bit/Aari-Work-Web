@@ -5,8 +5,9 @@ import Reveal from "@/components/Reveal";
 import InteractiveProcess from "@/components/InteractiveProcess";
 import Hero from "@/components/Hero";
 import ThreadDivider from "@/components/ThreadDivider";
-import SmartVideo from "@/components/SmartVideo";
-import ServiceIcon from "@/components/ServiceIcon";
+import StudioSection from "@/components/StudioSection";
+import ScatteredServices from "@/components/ScatteredServices";
+import TestimonialMarquee from "@/components/TestimonialMarquee";
 import { Header, Faqs, FloatingActions } from "@/components/Chrome";
 import { site, services, testimonials } from "@/lib/site";
 
@@ -52,74 +53,16 @@ export default function Home() {
           </div>
         }
       >
-        <div className="grid md:grid-cols-2 gap-10 items-center">
-          <Reveal>
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden ring-1 ring-[#D8C19A] shadow-lg bg-[#3A2025]">
-              <SmartVideo
-                src="/videos/video-1.mp4"
-                poster="/images/Img-1.webp"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </Reveal>
-          <Reveal delay={120}>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#6B2638] px-3.5 py-1 text-xs font-semibold text-[#D8C19A] mb-3 ring-1 ring-[#D8C19A]/40 shadow-sm">
-              <span>Designed &amp; crafted by {site.owner}</span>
-            </div>
-            <h3 className="font-serif-display text-2xl text-[#3A2025] font-bold mb-3">
-              Meet {site.owner}, founder &amp; master artisan
-            </h3>
-            <p className="text-[#3A2025]/85 leading-relaxed">
-              {site.name} was founded by <strong className="text-[#6B2638] font-semibold">{site.owner}</strong> as a passionate handmade studio in {site.city}. 
-              With an eye for traditional artistry and custom perfection, {site.owner} and her team have crafted 2500+ dream bridal blouses for brides across South India.
-            </p>
-            <p className="mt-4 text-[#3A2025]/85 leading-relaxed">
-              Every blouse is personally designed by <strong className="text-[#3A2025]">{site.owner}</strong> using premium threads, original Kundan stones, and metallic zardosi. 
-              Machine-la avasarama mudikura velai illa — {site.owner}-in neat finishing dhaan namma identity!
-            </p>
-            <ul className="mt-6 space-y-2 text-sm">
-              {["100% handmade aari & maggam work by Mithanya's team", "Free fitting trial for local customers", "All-India courier available", "Design confidentiality guaranteed"].map((x) => (
-                <li key={x} className="flex gap-2 text-[#3A2025]/90">
-                  <span className="text-gold-deep" aria-hidden="true">✦</span>
-                  {x}
-                </li>
-              ))}
-            </ul>
-          </Reveal>
-        </div>
+        <StudioSection />
       </Section>
 
       {/* Decorative Thread 2: Between About & Services */}
       <ThreadDivider variant="curve-left" className="bg-[#F8F3EC]" />
 
-      {/* SERVICES */}
-      <Section id="services" bg="bg-[#F1E7DC]" eyebrow="What we make" title="Aari work, by the piece">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {services.map((s, i) => (
-            <Reveal key={s.title} delay={i * 70}>
-              <a
-                href="#enquiry"
-                className="group h-full rounded-3xl bg-[#FFFFFF] p-6 ring-1 ring-[#D8C19A]/60 hover:ring-[#B08A57]/60 shadow-sm hover:shadow-md transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 motion-reduce:hover:translate-y-0 flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6B2638] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F1E7DC]"
-              >
-                <div>
-                  <div className="overflow-hidden rounded-2xl inline-block transition-transform duration-450 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] motion-reduce:group-hover:scale-100">
-                    <ServiceIcon title={s.title} className="h-9 w-9 text-[#6B2638]" />
-                  </div>
-                  <h3 className="mt-4 font-serif-display text-xl text-[#3A2025]">{s.title}</h3>
-                  <p className="mt-2 text-sm text-[#3A2025]/75 leading-relaxed">{s.desc}</p>
-                </div>
-                <div className="mt-5 flex items-center justify-between">
-                  <p className="text-sm font-medium text-gold-deep">{s.price}</p>
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#6B2638] transition-transform duration-350 ease-out group-hover:translate-x-1 motion-reduce:group-hover:translate-x-0">
-                    <span>Get a quote</span>
-                    <span aria-hidden="true">→</span>
-                  </span>
-                </div>
-              </a>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
+      {/* SERVICES (Scattered -> Magnetic Assemble on Scroll) */}
+      <section id="services" className="relative bg-[#F1E7DC] overflow-visible">
+        <ScatteredServices />
+      </section>
 
       {/* Decorative Thread 2: Around Process Transition */}
       <ThreadDivider variant="curve-left" className="bg-[#F8F3EC]" />
@@ -143,40 +86,23 @@ export default function Home() {
         <InteractiveProcess />
       </Section>
 
-      {/* REVIEWS */}
-      <Section id="reviews" bg="bg-[#F1E7DC]" eyebrow="In their words" title="What brides say">
-        <div className="grid md:grid-cols-3 gap-5">
-          {testimonials.map((t, i) => (
-            <Reveal key={t.name} delay={i * 90}>
-              <div className="relative h-full rounded-3xl bg-[#FFFFFF] p-6 ring-1 ring-[#D8C19A]/60 hover:ring-[#B08A57]/60 shadow-sm hover:shadow-md transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 motion-reduce:hover:translate-y-0 flex flex-col justify-between overflow-hidden">
-                {/* Decorative Subtle Gold Quote Mark */}
-                <span className="absolute top-4 right-5 text-4xl font-serif text-[#B08A57]/20 select-none pointer-events-none">
-                  ❝
-                </span>
-
-                <div>
-                  {/* Spaced Out 5 Gold Stars */}
-                  <div className="flex items-center gap-1 text-gold-deep text-sm tracking-wider">
-                    <span aria-hidden="true">★ ★ ★ ★ ★</span>
-                    <span className="sr-only">Rated 5 out of 5</span>
-                  </div>
-                  <p className="mt-3.5 text-sm text-[#3A2025]/85 leading-relaxed">“{t.text}”</p>
-                </div>
-
-                <div className="mt-6 flex items-center gap-3 pt-3 border-t border-[#D8C19A]/20">
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-[#6B2638] text-white text-sm font-semibold shadow-xs">
-                    {t.name[0]}
-                  </span>
-                  <div className="text-sm">
-                    <div className="font-medium text-[#3A2025]">{t.name}</div>
-                    <div className="text-xs text-[#3A2025]/70">{t.place}</div>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
+      {/* REVIEWS (Right to Left Continuous Motion) */}
+      <section id="reviews" className="relative py-20 md:py-24 bg-[#F1E7DC] overflow-hidden">
+        <div className="mx-auto max-w-6xl px-4 mb-10 md:mb-12">
+          <Reveal>
+            <p className="text-xs font-medium tracking-[0.16em] text-gold-deep">In their words</p>
+            <div className="mt-3 flex items-end justify-between gap-8">
+              <h2 className="font-serif-display text-3xl md:text-4xl text-[#3A2025]">
+                What brides say
+              </h2>
+              <div className="stitch-rule hidden sm:block mb-2 h-0.5 w-24 shrink-0" aria-hidden="true" />
+            </div>
+          </Reveal>
         </div>
-      </Section>
+
+        {/* Continuous Right-to-Left Infinite Ribbon */}
+        <TestimonialMarquee />
+      </section>
 
       {/* Decorative Thread 3: Transition to Enquiry Section */}
       <ThreadDivider variant="wave" className="bg-[#F1E7DC]" />

@@ -6,6 +6,7 @@ import Analytics from "@/components/Analytics";
 import { I18nProvider } from "@/lib/i18n";
 import LuxuryCursor from "@/components/LuxuryCursor";
 import LuxuryPreloader from "@/components/LuxuryPreloader";
+import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -178,7 +179,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <I18nProvider>
           <LuxuryPreloader />
           <LuxuryCursor />
-          {children}
+          <SmoothScrollProvider>{children}</SmoothScrollProvider>
         </I18nProvider>
         {gaId ? <Analytics gaId={gaId} /> : null}
       </body>
