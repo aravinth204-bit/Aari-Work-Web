@@ -171,9 +171,9 @@ export default function EnquiryForm() {
       >
         <span>{status === "loading" ? "Sending..." : "Send my enquiry"}</span>
       </button>
-      <p className="text-center text-[11px] text-[#3A2025]/70">
+      {/* <p className="text-center text-[11px] text-[#3A2025]/70">
         Ungal details safe-a irukum. Namma mattum contact panuvom.
-      </p>
+      </p> */}
     </form>
   );
 }
