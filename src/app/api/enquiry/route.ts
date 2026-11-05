@@ -60,6 +60,11 @@ export async function POST(request: Request) {
       budget: body.budget ? String(body.budget).slice(0, 60) : null,
       city: body.city ? String(body.city).slice(0, 120) : null,
       message: body.message ? String(body.message).slice(0, 2000) : null,
+      orderAmount: Number(body.orderAmount) || 0,
+      advanceAmount: Number(body.advanceAmount) || 0,
+      deliveryDate: body.deliveryDate ? String(body.deliveryDate).slice(0, 40) : null,
+      orderSource: body.orderSource ? String(body.orderSource).slice(0, 50) : "Website Form",
+      measurements: body.measurements ? String(body.measurements).slice(0, 2000) : null,
     };
 
     try {
@@ -94,7 +99,7 @@ export async function GET(request: Request) {
   }
 }
 
-// Update status or internal atelier notes
+// Update status, notes, order amounts, delivery dates, or measurements
 export async function PATCH(request: Request) {
   const denied = requireAdmin(request);
   if (denied) return denied;
@@ -102,16 +107,19 @@ export async function PATCH(request: Request) {
   try {
     const body = await request.json();
     const id = Number(body.id);
-    const status = body.status !== undefined ? String(body.status).trim() : undefined;
-    const adminNotes = body.adminNotes !== undefined ? String(body.adminNotes).trim() : undefined;
 
     if (!id) {
       return NextResponse.json({ error: "Missing record id." }, { status: 400 });
     }
 
-    const updates: { status?: string; adminNotes?: string } = {};
-    if (status) updates.status = status;
-    if (adminNotes !== undefined) updates.adminNotes = adminNotes;
+    const updates: Record<string, any> = {};
+    if (body.status !== undefined) updates.status = String(body.status).trim();
+    if (body.adminNotes !== undefined) updates.adminNotes = String(body.adminNotes).trim();
+    if (body.orderAmount !== undefined) updates.orderAmount = Number(body.orderAmount) || 0;
+    if (body.advanceAmount !== undefined) updates.advanceAmount = Number(body.advanceAmount) || 0;
+    if (body.deliveryDate !== undefined) updates.deliveryDate = body.deliveryDate ? String(body.deliveryDate).slice(0, 40) : null;
+    if (body.orderSource !== undefined) updates.orderSource = String(body.orderSource).slice(0, 50);
+    if (body.measurements !== undefined) updates.measurements = body.measurements ? String(body.measurements).slice(0, 2000) : null;
 
     try {
       const [updated] = await db
@@ -126,6 +134,6 @@ export async function PATCH(request: Request) {
     }
   } catch (error) {
     console.error("enquiry update error", error);
-    return NextResponse.json({ error: "Could not update status." }, { status: 500 });
+    return NextResponse.json({ error: "Could not update order record." }, { status: 500 });
   }
 }

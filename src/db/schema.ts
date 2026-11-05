@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, varchar, timestamp, integer } from "drizzle-orm/pg-core";
 
 export const enquiries = pgTable("enquiries", {
   id: serial("id").primaryKey(),
@@ -11,6 +11,12 @@ export const enquiries = pgTable("enquiries", {
   message: text("message"),
   adminNotes: text("admin_notes"),
   status: varchar("status", { length: 30 }).notNull().default("new"),
+  // New Operational & Order Fields
+  orderAmount: integer("order_amount").default(0),
+  advanceAmount: integer("advance_amount").default(0),
+  deliveryDate: varchar("delivery_date", { length: 40 }), // Target delivery date
+  orderSource: varchar("order_source", { length: 50 }).default("Website Form"),
+  measurements: text("measurements"), // Custom blouse stitching specs
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -23,6 +29,9 @@ export const galleryImages = pgTable("gallery_images", {
   category: varchar("category", { length: 80 }).notNull(),
   imageUrl: text("image_url").notNull(),
   description: text("description"),
+  // New Editable Metadata
+  price: varchar("price", { length: 60 }), // e.g. "₹4,500"
+  tags: varchar("tags", { length: 255 }),  // e.g. "Bridal, Peacock, Zardosi"
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
