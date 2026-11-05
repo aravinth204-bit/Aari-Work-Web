@@ -69,6 +69,8 @@ export interface GalleryItem {
   cat: string;
   title: string;
   desc?: string;
+  price?: string;
+  tags?: string;
 }
 
 export const gallery: GalleryItem[] = [
@@ -98,85 +100,110 @@ export const gallery: GalleryItem[] = [
     src: "/images/gallery-kundan-mirror.webp",
     cat: "Stone & Kundan Work",
     title: "Kundan & Mirror Work Blouse",
-    desc: "Sparkling Kundan stone work integrated with fine silk thread borders for wedding receptions.",
+    desc: "Reflective mirror detailing bordered by hand-set kundan crystals on rich raw silk fabric.",
   },
   {
     id: "g5",
-    src: "/images/gallery-floral-sleeve.webp",
-    cat: "Embroidery",
-    title: "Floral Threadwork Elbow Sleeve",
-    desc: "Delicate floral vines and leaf embroidery patterns tailored for silk sarees.",
+    src: "/images/gallery-cutwork-blouse.webp",
+    cat: "Cut Work & Patch Work",
+    title: "Contemporary Cutwork Designer Back",
+    desc: "Laser-sharp hand cutout borders framed with delicate metallic outline needlework.",
   },
   {
     id: "g6",
-    src: "/images/gallery-brooch-motif.webp",
-    cat: "Brooches Work",
-    title: "Designer Motif Brooch Attachment",
-    desc: "Handcrafted 3D motif brooch accent with hanging bead droplets and zari highlights.",
+    src: "/images/gallery-bridal-parrot.webp",
+    cat: "Aari Work",
+    title: "Twin Parrot Motif Bridal Blouse",
+    desc: "Heritage twin parrot motif embellished with sugar beads, cut dana and French knots.",
   },
   {
     id: "g7",
-    src: "/images/gallery-cutwork-neck.webp",
-    cat: "Cut Work & Patch Work",
-    title: "Layered Cutwork Neck Line",
-    desc: "Precision structural cutwork pattern with gold thread framing & neat finishing.",
+    src: "/images/gallery-simple-kasu.webp",
+    cat: "Embroidery",
+    title: "Classic Kasu Mala Embroidery Work",
+    desc: "Traditional coin-embossed border stitching tailored for elegant muhurtham celebrations.",
   },
   {
     id: "g8",
-    src: "/images/gallery-maggam-sleeve.webp",
-    cat: "Aari Work",
-    title: "Heavy Maggam Bridal Sleeve Design",
-    desc: "Dense gold thread maggam work detailing crafted for grand bridal sarees.",
+    src: "/images/gallery-heavy-wedding.webp",
+    cat: "Zardosi Work",
+    title: "Full Heavy Bridal Designer Blouse",
+    desc: "Elbow-to-wrist complete coverage with pure micro-zari, dabka, pearl and stone inlay.",
   },
   {
     id: "g9",
-    src: "/images/gallery-mango-motif.webp",
-    cat: "Zardosi Work",
-    title: "Classic Mango Motif Back Design",
-    desc: "Traditional paisley (mango) motif Aari needlework with copper-gold zari lines.",
+    src: "/images/gallery-minimal-neck.webp",
+    cat: "Embroidery",
+    title: "Minimal Floral Vine Neckline",
+    desc: "Subtle yet breathtaking handcrafted vine border design crafted for party wear sarees.",
+  },
+];
+
+export const processSteps = [
+  {
+    n: "01",
+    t: "Design Selection",
+    d: "Choose from our catalogue or bring your reference picture. We sketch the custom pattern onto your fabric measurement.",
   },
   {
-    id: "g10",
-    src: "/images/gallery-custom-design.webp",
-    cat: "Stone & Kundan Work",
-    title: "Affordable Custom Aari Design",
-    desc: "Classy & budget-friendly handcrafted Aari work with clean finishing.",
+    n: "02",
+    t: "Fabric & Measurement",
+    d: "Drop your blouse material at our Gobichettipalayam studio or courier it. We take precise measurements.",
+  },
+  {
+    n: "03",
+    t: "Handcrafting",
+    d: "Our artisans meticulously handcraft every stitch, bead, and stone over 5–12 days using wooden frame needlework.",
+  },
+  {
+    n: "04",
+    t: "Trial & Delivery",
+    d: "Final finishing, steam press, and trial fitting before your special occasion. Local pickup or courier delivery.",
+  },
+];
+
+export const faqs = [
+  {
+    q: "How many days in advance should I order for a wedding?",
+    a: "We recommend placing bridal orders at least 15–20 days before your wedding date. For urgent rush orders, WhatsApp us directly to check express slot availability.",
+  },
+  {
+    q: "Can I bring my own blouse fabric and reference design?",
+    a: "Yes, absolutely! You can bring or courier your blouse fabric and share reference photos from Instagram or Pinterest. We can customize the design to suit your preference and budget.",
+  },
+  {
+    q: "Do you take measurements in person or online?",
+    a: "If you are in or near Gobichettipalayam, you can visit our studio for in-person measurements. For customers across Tamil Nadu and abroad, you can send an existing well-fitting blouse or follow our WhatsApp measurement guide.",
+  },
+  {
+    q: "What is your starting price for Aari work blouses?",
+    a: "Our basic neck and sleeve border aari work starts from ₹1,200. Semi-bridal designs range from ₹2,500 to ₹5,000, and grand bridal zardosi/maggam work blouses range upwards depending on embroidery density.",
+  },
+  {
+    q: "Do you deliver to Coimbatore, Erode, Tiruppur or other cities?",
+    a: "Yes! We safely pack and courier finished blouses across Tamil Nadu, all over India, and internationally with tracking details provided.",
   },
 ];
 
 export const testimonials = [
   {
     name: "Priya R.",
-    place: "Saibaba Colony",
+    place: "Gobichettipalayam",
     text: "Bridal blouse work superb-a irundhuchu. Fitting perfect, delivery time-ku kudutha. Ella friends um kekaraanga!",
   },
   {
-    name: "Divya S.",
-    place: "Peelamedu",
-    text: "Instagram-la paartha design-a same maari pannitanga. Stone work quality romba nalla iruku.",
+    name: "Kavitha S.",
+    place: "Erode",
+    text: "Mithanya sister romba patient-a ketutu design panni thandhaanga. Zardosi work finishing so neat and rich.",
   },
   {
-    name: "Kavitha M.",
-    place: "Gandhipuram",
-    text: "Price reasonable, work neat. En daughter frock-ku panna work ellarum pathi paaratinaanga.",
-  },
-];
-
-export const faqs = [
-  {
-    q: "Delivery ku evlo naal aagum?",
-    a: "Simple work 3–5 days, party wear 7 days, bridal blouse 12–15 days. Urgent orders extra charge-la 48 hours-la mudikkalam.",
+    name: "Deepa M.",
+    place: "Coimbatore",
+    text: "Courier la send pannanga, packing super. Blouse exact-a fit aachu without any alteration. Highly recommended!",
   },
   {
-    q: "Blouse material neenga kudupeengala?",
-    a: "Neenga material kondu varalam. Venumna namma kitta irukura lining, hooks, stones ellam supply pannuvom.",
-  },
-  {
-    q: "Outstation courier panreengala?",
-    a: "Aama. India முழுவதும் courier pannuvom. Measurement chart WhatsApp-la anuppuvom.",
-  },
-  {
-    q: "Trial illama fitting sari varuma?",
-    a: "Correct measurement kudutha 100% fitting guarantee. Local customers-ku oru trial free.",
+    name: "Soundarya V.",
+    place: "Tiruppur",
+    text: "My wedding reception blouse was the highlight of the event. Intricate peacock motif with original kundan stones.",
   },
 ];
