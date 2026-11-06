@@ -38,7 +38,9 @@ import {
   ChevronRight,
   Landmark,
   ArrowUpRight,
-  Printer
+  Printer,
+  Download,
+  Pin
 } from "lucide-react";
 
 
@@ -69,6 +71,7 @@ export interface GalleryItem {
   desc?: string;
   price?: string;
   tags?: string;
+  isPinned?: boolean;
 }
 
 const statusOptions = [
@@ -95,6 +98,10 @@ export default function AdminPage() {
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  // Customer Directory Search & Filter State
+  const [customerSearchQuery, setCustomerSearchQuery] = useState("");
+  const [customerTypeFilter, setCustomerTypeFilter] = useState<"all" | "repeat" | "pending" | "high_value">("all");
 
   // Order Detail / Edit Modal state
   const [selectedOrder, setSelectedOrder] = useState<EnquiryRecord | null>(null);
@@ -226,7 +233,18 @@ export default function AdminPage() {
       const res = await fetch("/api/gallery");
       if (res.ok) {
         const data = await res.json();
-        setGalleryItems(data.items || []);
+        const rawItems: GalleryItem[] = data.items || [];
+        const pinnedIds: string[] = JSON.parse(localStorage.getItem("aari_pinned_gallery_ids") || "[]");
+
+        const sorted = rawItems.sort((a, b) => {
+          const aPinned = pinnedIds.includes(a.id);
+          const bPinned = pinnedIds.includes(b.id);
+          if (aPinned && !bPinned) return -1;
+          if (!aPinned && bPinned) return 1;
+          return 0;
+        });
+
+        setGalleryItems(sorted);
       }
     } catch (err) {
       console.error("Fetch gallery error:", err);
@@ -245,6 +263,73 @@ export default function AdminPage() {
     setIsLoggedIn(false);
     setEnquiries([]);
     setToken("");
+  }
+
+  // Export filtered orders or all enquiries as CSV spreadsheet
+  function exportOrdersToCSV(records: EnquiryRecord[], filenamePrefix = "atelier-orders") {
+    if (!records.length) {
+      alert("No orders available to export.");
+      return;
+    }
+
+    const headers = [
+      "Order ID",
+      "Created Date",
+      "Bride Name",
+      "Mobile Number",
+      "City / Location",
+      "Work Type",
+      "Target Delivery Date",
+      "Wedding / Function Date",
+      "Order Amount (INR)",
+      "Advance Received (INR)",
+      "Balance Due (INR)",
+      "Status",
+      "Order Source",
+      "Measurements / Notes"
+    ];
+
+    const escapeCSV = (val: unknown) => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const rows = records.map((ord) => {
+      const total = ord.orderAmount || 0;
+      const adv = ord.advanceAmount || 0;
+      const bal = Math.max(0, total - adv);
+      const dateStr = ord.createdAt ? new Date(ord.createdAt).toLocaleDateString("en-IN") : "";
+
+      return [
+        escapeCSV(`ORD-#${ord.id}`),
+        escapeCSV(dateStr),
+        escapeCSV(ord.name),
+        escapeCSV(ord.mobile),
+        escapeCSV(ord.city || "Gobichettipalayam"),
+        escapeCSV(ord.workType),
+        escapeCSV(ord.deliveryDate || "Not Set"),
+        escapeCSV(ord.functionDate || "Not Set"),
+        escapeCSV(total),
+        escapeCSV(adv),
+        escapeCSV(bal),
+        escapeCSV(ord.status),
+        escapeCSV(ord.orderSource || "Direct Studio"),
+        escapeCSV(ord.measurements || "")
+      ].join(",");
+    });
+
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows].join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const today = new Date().toISOString().split("T")[0];
+    link.href = url;
+    link.setAttribute("download", `${filenamePrefix}-${today}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
   // Update order record
@@ -497,6 +582,30 @@ export default function AdminPage() {
     }
   }
 
+  // Pin / Feature Gallery Item to Top of Showcase
+  function handleTogglePin(itemId: string) {
+    const pinnedKey = "aari_pinned_gallery_ids";
+    const existingPinned: string[] = JSON.parse(localStorage.getItem(pinnedKey) || "[]");
+    let nextPinned: string[];
+
+    if (existingPinned.includes(itemId)) {
+      nextPinned = existingPinned.filter((id) => id !== itemId);
+    } else {
+      nextPinned = [itemId, ...existingPinned];
+    }
+
+    localStorage.setItem(pinnedKey, JSON.stringify(nextPinned));
+    setGalleryItems((prev) =>
+      [...prev].sort((a, b) => {
+        const aPinned = nextPinned.includes(a.id);
+        const bPinned = nextPinned.includes(b.id);
+        if (aPinned && !bPinned) return -1;
+        if (!aPinned && bPinned) return 1;
+        return 0;
+      })
+    );
+  }
+
   // -------------------------------------------------------------
   // INTELLIGENT METRICS & COMPUTATIONS
   // -------------------------------------------------------------
@@ -545,15 +654,50 @@ export default function AdminPage() {
     return Array.from(map.values());
   }, [enquiries]);
 
+  // Filtered Customer Profiles for Directory Search & Quick Chips
+  const filteredCustomerProfiles = useMemo(() => {
+    let list = customerProfiles;
+
+    // Search query
+    if (customerSearchQuery.trim()) {
+      const q = customerSearchQuery.toLowerCase();
+      list = list.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.mobile.includes(q) ||
+          (c.city && c.city.toLowerCase().includes(q))
+      );
+    }
+
+    // Type filter pills
+    if (customerTypeFilter === "repeat") {
+      list = list.filter((c) => c.isRepeat);
+    } else if (customerTypeFilter === "pending") {
+      list = list.filter((c) => {
+        const bal = c.totalSpent - c.totalAdvance;
+        return bal > 0;
+      });
+    } else if (customerTypeFilter === "high_value") {
+      list = list.filter((c) => c.totalSpent >= 5000);
+    }
+
+    return list;
+  }, [customerProfiles, customerSearchQuery, customerTypeFilter]);
+
   // Operational KPIs
   const metrics = useMemo(() => {
     let monthlyRevenue = 0;
     let monthlyAdvance = 0;
     let todayDeliveriesCount = 0;
+    let tomorrowDeliveriesCount = 0;
+    let overdueDeliveriesCount = 0;
     let upcomingDeliveriesCount = 0;
     let inFrameCount = 0;
 
     const now = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split("T")[0];
     const next7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
     enquiries.forEach((e) => {
@@ -564,12 +708,16 @@ export default function AdminPage() {
         inFrameCount += 1;
       }
 
-      if (e.deliveryDate) {
-        if (e.deliveryDate === todayStr) {
+      if (e.deliveryDate && e.status !== "completed") {
+        if (e.deliveryDate < todayStr) {
+          overdueDeliveriesCount += 1;
+        } else if (e.deliveryDate === todayStr) {
           todayDeliveriesCount += 1;
+        } else if (e.deliveryDate === tomorrowStr) {
+          tomorrowDeliveriesCount += 1;
         } else {
           const dDate = new Date(e.deliveryDate);
-          if (dDate > now && dDate <= next7Days && e.status !== "completed") {
+          if (dDate > now && dDate <= next7Days) {
             upcomingDeliveriesCount += 1;
           }
         }
@@ -585,6 +733,8 @@ export default function AdminPage() {
       monthlyAdvance,
       pendingBalance: monthlyRevenue - monthlyAdvance,
       todayDeliveriesCount,
+      tomorrowDeliveriesCount,
+      overdueDeliveriesCount,
       upcomingDeliveriesCount,
       inFrameCount,
       repeatCount,
@@ -594,6 +744,10 @@ export default function AdminPage() {
 
   // Filtered Enquiries for Orders View
   const filteredEnquiries = useMemo(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split("T")[0];
+
     return enquiries.filter((e) => {
       const matchSearch =
         e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -605,6 +759,8 @@ export default function AdminPage() {
 
       if (statusFilter === "all") return true;
       if (statusFilter === "today_delivery") return e.deliveryDate === todayStr;
+      if (statusFilter === "tomorrow_delivery") return e.deliveryDate === tomorrowStr;
+      if (statusFilter === "overdue_delivery") return Boolean(e.deliveryDate && e.deliveryDate < todayStr && e.status !== "completed");
       return e.status === statusFilter;
     });
   }, [enquiries, searchQuery, statusFilter, todayStr]);
@@ -845,7 +1001,7 @@ export default function AdminPage() {
       {/* ========================================================= */}
       {/* 2. MAIN WORKSPACE AREA (Right Side)                        */}
       {/* ========================================================= */}
-      <div className="flex-1 md:pl-72 flex flex-col min-h-screen">
+      <div className="flex-1 md:pl-72 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
         {/* Top Navbar */}
         <header className="sticky top-0 z-30 bg-[#FFFFFF]/90 backdrop-blur-md border-b border-[#D8C19A]/40 px-4 sm:px-8 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -1081,29 +1237,43 @@ export default function AdminPage() {
           {activeTab === "orders" && (
             <div className="space-y-6 max-w-7xl mx-auto">
               {/* Filter & Search Bar */}
-              <div className="bg-[#FFFFFF] rounded-3xl p-5 ring-1 ring-[#D8C19A]/60 shadow-xs flex flex-col md:flex-row gap-4 justify-between items-center">
-                <div className="w-full md:w-80 relative">
+              <div className="bg-[#FFFFFF] rounded-3xl p-4 sm:p-5 ring-1 ring-[#D8C19A]/60 shadow-xs flex flex-col xl:flex-row gap-3 sm:gap-4 justify-between items-stretch xl:items-center">
+                <div className="w-full xl:w-72 relative shrink-0">
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search bride name, mobile, city..."
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A] text-xs text-[#3A2025] placeholder:text-[#3A2025]/50 focus:outline-none focus:ring-2 focus:ring-[#B08A57]"
+                    className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A] text-xs text-[#3A2025] placeholder:text-[#3A2025]/50 focus:outline-none focus:ring-2 focus:ring-[#B08A57]"
                   />
-                  <Search className="absolute left-3 top-3 w-4 h-4 text-[#7E5C30]/70" />
+                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-[#7E5C30]/70" />
                 </div>
 
-                <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   <FilterPill
                     label="All Orders"
                     active={statusFilter === "all"}
                     onClick={() => setStatusFilter("all")}
                   />
+                  {metrics.overdueDeliveriesCount > 0 && (
+                    <FilterPill
+                      label={`⚠️ Overdue (${metrics.overdueDeliveriesCount})`}
+                      active={statusFilter === "overdue_delivery"}
+                      onClick={() => setStatusFilter("overdue_delivery")}
+                    />
+                  )}
                   <FilterPill
-                    label="🚨 Today's Delivery"
+                    label={`🚨 Today (${metrics.todayDeliveriesCount})`}
                     active={statusFilter === "today_delivery"}
                     onClick={() => setStatusFilter("today_delivery")}
                   />
+                  {metrics.tomorrowDeliveriesCount > 0 && (
+                    <FilterPill
+                      label={`⏰ Tomorrow (${metrics.tomorrowDeliveriesCount})`}
+                      active={statusFilter === "tomorrow_delivery"}
+                      onClick={() => setStatusFilter("tomorrow_delivery")}
+                    />
+                  )}
                   <FilterPill
                     label="🧵 In Frame"
                     active={statusFilter === "in_progress"}
@@ -1119,6 +1289,17 @@ export default function AdminPage() {
                     active={statusFilter === "completed"}
                     onClick={() => setStatusFilter("completed")}
                   />
+
+                  {/* Export Orders CSV Button */}
+                  <button
+                    type="button"
+                    onClick={() => exportOrdersToCSV(filteredEnquiries, "tales-by-threads-orders")}
+                    className="btn-atelier-subtle !py-1 !px-2.5 ml-auto text-xs flex items-center gap-1.5 shrink-0"
+                    title="Export Filtered Orders as CSV Spreadsheet"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#B08A57]" />
+                    <span>Export CSV</span>
+                  </button>
                 </div>
               </div>
 
@@ -1141,6 +1322,10 @@ export default function AdminPage() {
                     {filteredEnquiries.map((order) => {
                       const currentStatus = statusOptions.find((s) => s.key === order.status) || statusOptions[0];
                       const isToday = order.deliveryDate === todayStr;
+                      const isOverdue = Boolean(order.deliveryDate && order.deliveryDate < todayStr && order.status !== "completed");
+                      const tomorrowStr = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+                      const isTomorrow = order.deliveryDate === tomorrowStr;
+
                       const totalAmt = order.orderAmount || 0;
                       const advAmt = order.advanceAmount || 0;
                       const balAmt = Math.max(0, totalAmt - advAmt);
@@ -1150,7 +1335,11 @@ export default function AdminPage() {
                           key={order.id}
                           onClick={() => setSelectedOrder(order)}
                           className={`hover:bg-[#F8F3EC]/70 cursor-pointer transition-colors group ${
-                            isToday ? "bg-red-50/30" : ""
+                            isOverdue
+                              ? "bg-red-100/40"
+                              : isToday
+                              ? "bg-amber-50/50"
+                              : ""
                           }`}
                         >
                           <td className="py-3.5 px-4 font-mono font-bold text-[#6B2638]">
@@ -1175,9 +1364,23 @@ export default function AdminPage() {
                             )}
                           </td>
                           <td className="py-3.5 px-4 font-mono">
-                            <span className={`font-bold ${isToday ? "text-red-600 bg-red-100 px-2.5 py-0.5 rounded-full" : "text-[#3A2025]"}`}>
-                              {order.deliveryDate || "Not Set"}
-                            </span>
+                            {isOverdue ? (
+                              <span className="inline-flex items-center gap-1 font-bold text-red-700 bg-red-100 px-2.5 py-0.5 rounded-full text-xs">
+                                ⚠️ Overdue ({order.deliveryDate})
+                              </span>
+                            ) : isToday ? (
+                              <span className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full text-xs animate-pulse">
+                                🚨 Today ({order.deliveryDate})
+                              </span>
+                            ) : isTomorrow ? (
+                              <span className="inline-flex items-center gap-1 font-bold text-orange-800 bg-orange-100 px-2.5 py-0.5 rounded-full text-xs">
+                                ⏰ Tomorrow ({order.deliveryDate})
+                              </span>
+                            ) : (
+                              <span className="text-[#3A2025] font-medium">
+                                {order.deliveryDate || "Not Set"}
+                              </span>
+                            )}
                           </td>
                           <td className="py-3.5 px-4 font-mono text-[#6B2638] font-semibold">
                             {order.functionDate || "—"}
@@ -1329,6 +1532,43 @@ export default function AdminPage() {
           {/* TAB 3: CUSTOMER CRM */}
           {activeTab === "customers" && (
             <div className="space-y-6 max-w-7xl mx-auto">
+              {/* Filter & Live Search Bar */}
+              <div className="bg-[#FFFFFF] rounded-3xl p-4 sm:p-5 ring-1 ring-[#D8C19A]/60 shadow-xs flex flex-col xl:flex-row gap-3 sm:gap-4 justify-between items-stretch xl:items-center">
+                <div className="w-full xl:w-72 relative shrink-0">
+                  <input
+                    type="text"
+                    value={customerSearchQuery}
+                    onChange={(e) => setCustomerSearchQuery(e.target.value)}
+                    placeholder="Search bride name, mobile, city..."
+                    className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A] text-xs text-[#3A2025] placeholder:text-[#3A2025]/50 focus:outline-none focus:ring-2 focus:ring-[#B08A57]"
+                  />
+                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-[#7E5C30]/70" />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <FilterPill
+                    label={`All Brides (${customerProfiles.length})`}
+                    active={customerTypeFilter === "all"}
+                    onClick={() => setCustomerTypeFilter("all")}
+                  />
+                  <FilterPill
+                    label={`👑 Repeat (${customerProfiles.filter((c) => c.isRepeat).length})`}
+                    active={customerTypeFilter === "repeat"}
+                    onClick={() => setCustomerTypeFilter("repeat")}
+                  />
+                  <FilterPill
+                    label={`⏳ Pending Balance (${customerProfiles.filter((c) => c.totalSpent - c.totalAdvance > 0).length})`}
+                    active={customerTypeFilter === "pending"}
+                    onClick={() => setCustomerTypeFilter("pending")}
+                  />
+                  <FilterPill
+                    label="💎 High Value (₹5k+)"
+                    active={customerTypeFilter === "high_value"}
+                    onClick={() => setCustomerTypeFilter("high_value")}
+                  />
+                </div>
+              </div>
+
               {/* DESKTOP TABLE VIEW */}
               <div className="hidden md:block bg-[#FFFFFF] rounded-3xl p-6 ring-1 ring-[#D8C19A]/60 shadow-xs">
                 <div className="overflow-x-auto">
@@ -1346,7 +1586,7 @@ export default function AdminPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#D8C19A]/20">
-                      {customerProfiles.map((client) => {
+                      {filteredCustomerProfiles.map((client) => {
                         const totalSpent = client.totalSpent || 0;
                         const totalAdv = client.orders.reduce((sum, o) => sum + (o.advanceAmount || 0), 0);
                         const balanceDue = totalSpent - totalAdv;
@@ -1431,7 +1671,7 @@ export default function AdminPage() {
 
               {/* MOBILE CARDS VIEW */}
               <div className="grid md:hidden grid-cols-1 gap-4">
-                {customerProfiles.map((client) => {
+                {filteredCustomerProfiles.map((client) => {
                   const totalSpent = client.totalSpent || 0;
                   const totalAdv = client.orders.reduce((sum, o) => sum + (o.advanceAmount || 0), 0);
                   const balanceDue = totalSpent - totalAdv;
@@ -1634,58 +1874,87 @@ export default function AdminPage() {
 
               {/* Gallery List & Edit Cards */}
               <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {galleryItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-[#FFFFFF] rounded-3xl overflow-hidden ring-1 ring-[#D8C19A]/60 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
-                  >
-                    <div className="relative aspect-square w-full bg-[#F8F3EC]">
-                      <Image
-                        src={item.src}
-                        alt={item.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <span className="absolute top-3 left-3 bg-[#3A2025]/80 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-                        {item.cat}
-                      </span>
-                      {item.price && (
-                        <span className="absolute bottom-3 left-3 bg-[#0F7A6C] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">
-                          {item.price}
-                        </span>
-                      )}
-                    </div>
+                {galleryItems.map((item) => {
+                  const pinnedIds: string[] = typeof window !== "undefined"
+                    ? JSON.parse(localStorage.getItem("aari_pinned_gallery_ids") || "[]")
+                    : [];
+                  const isPinned = pinnedIds.includes(item.id);
 
-                    <div className="p-4 flex-1 flex flex-col justify-between">
-                      <div>
-                        <h4 className="font-serif-display text-sm font-bold text-[#3A2025] line-clamp-1">
-                          {item.title}
-                        </h4>
-                        {item.desc && (
-                          <p className="text-xs text-[#7E5C30] mt-1 line-clamp-2">
-                            {item.desc}
-                          </p>
+                  return (
+                    <div
+                      key={item.id}
+                      className={`bg-[#FFFFFF] rounded-3xl overflow-hidden ring-1 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group ${
+                        isPinned ? "ring-2 ring-[#B08A57] bg-amber-50/10" : "ring-[#D8C19A]/60"
+                      }`}
+                    >
+                      <div className="relative aspect-square w-full bg-[#F8F3EC]">
+                        <Image
+                          src={item.src}
+                          alt={item.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <span className="absolute top-3 left-3 bg-[#3A2025]/80 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                          {item.cat}
+                        </span>
+
+                        {/* Pin Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePin(item.id)}
+                          className={`absolute top-3 right-3 p-2 rounded-xl backdrop-blur-xs shadow-xs transition-all cursor-pointer ${
+                            isPinned
+                              ? "bg-[#B08A57] text-white ring-1 ring-white/50"
+                              : "bg-[#3A2025]/70 text-white/80 hover:bg-[#3A2025] hover:text-white"
+                          }`}
+                          title={isPinned ? "Unpin from Top" : "Pin Masterpiece to Top of Showcase"}
+                        >
+                          <Pin className={`w-3.5 h-3.5 ${isPinned ? "fill-white rotate-45" : ""}`} />
+                        </button>
+
+                        {item.price && (
+                          <span className="absolute bottom-3 left-3 bg-[#0F7A6C] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-xs">
+                            {item.price}
+                          </span>
+                        )}
+                        {isPinned && (
+                          <span className="absolute bottom-3 right-3 bg-[#B08A57] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1">
+                            ⭐ Featured
+                          </span>
                         )}
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-[#D8C19A]/30 flex items-center justify-between gap-2">
-                        <button
-                          onClick={() => setEditingGalleryItem(item)}
-                          className="flex-1 btn-atelier-subtle !py-1 text-xs"
-                        >
-                          <Pencil className="w-3.5 h-3.5" /> Edit
-                        </button>
-                        <button
-                          onClick={() => setDeletingGalleryItem(item)}
-                          className="p-1.5 rounded-xl text-red-600 hover:bg-red-50 text-xs font-semibold transition-colors cursor-pointer"
-                          title="Delete photo"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                          <h4 className="font-serif-display text-sm font-bold text-[#3A2025] line-clamp-1">
+                            {item.title}
+                          </h4>
+                          {item.desc && (
+                            <p className="text-xs text-[#7E5C30] mt-1 line-clamp-2">
+                              {item.desc}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="mt-4 pt-3 border-t border-[#D8C19A]/30 flex items-center justify-between gap-2">
+                          <button
+                            onClick={() => setEditingGalleryItem(item)}
+                            className="flex-1 btn-atelier-subtle !py-1 text-xs"
+                          >
+                            <Pencil className="w-3.5 h-3.5" /> Edit
+                          </button>
+                          <button
+                            onClick={() => setDeletingGalleryItem(item)}
+                            className="p-1.5 rounded-xl text-red-600 hover:bg-red-50 text-xs font-semibold transition-colors cursor-pointer"
+                            title="Delete photo"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -1718,9 +1987,20 @@ export default function AdminPage() {
               </div>
 
               <div className="bg-[#FFFFFF] rounded-3xl p-6 ring-1 ring-[#D8C19A]/60 shadow-xs">
-                <h3 className="font-serif-display text-lg font-bold text-[#3A2025] mb-4">
-                  Financial Ledger by Customer
-                </h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-[#D8C19A]/30">
+                  <h3 className="font-serif-display text-lg font-bold text-[#3A2025]">
+                    Financial Ledger by Customer
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => exportOrdersToCSV(enquiries, "atelier-financial-ledger")}
+                    className="btn-atelier-primary !py-1.5 !px-3.5 text-xs self-start sm:self-auto"
+                    title="Export Complete Financial Ledger as CSV"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#D8C19A]" />
+                    <span>Download Ledger CSV</span>
+                  </button>
+                </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>

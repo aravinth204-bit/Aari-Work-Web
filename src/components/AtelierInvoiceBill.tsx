@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Printer, X, Scissors } from "lucide-react";
 import { site } from "@/lib/site";
 import type { EnquiryRecord } from "@/app/admin/page";
+import { parseMeasurements } from "@/lib/measurements";
 
 interface AtelierInvoiceBillProps {
   order: EnquiryRecord;
@@ -19,6 +20,7 @@ export default function AtelierInvoiceBill({ order, onClose }: AtelierInvoiceBil
   const totalAmount = order.orderAmount || 0;
   const advanceAmount = order.advanceAmount || 0;
   const balanceAmount = Math.max(0, totalAmount - advanceAmount);
+  const { structured: meas } = parseMeasurements(order.measurements);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto print:p-0 print:bg-white print:static">
@@ -157,22 +159,40 @@ export default function AtelierInvoiceBill({ order, onClose }: AtelierInvoiceBil
             {/* Measurements */}
             <div className="p-3.5 rounded-2xl border border-[#D8C19A]/40 bg-white">
               <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#7E5C30] mb-2 flex items-center justify-between">
-                <span>Blouse Measurements</span>
-                <span className="text-[10px] text-[#7E5C30]/70">Inches (”)</span>
+                <span>Tailoring Measurements</span>
+                <span className="text-[10px] text-[#7E5C30]/70 font-mono">Inches (”)</span>
               </h4>
 
-              {order.measurements ? (
-                <div className="p-2.5 bg-[#F8F3EC]/50 rounded-xl font-mono text-xs text-[#3A2025] leading-relaxed whitespace-pre-wrap">
-                  {order.measurements}
+              <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
+                <div className="p-1 rounded bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                  <span className="text-[9px] text-[#7E5C30] block font-bold">Bust</span>
+                  <span className="text-xs font-mono font-bold text-[#3A2025]">{meas.bust ? `${meas.bust}”` : "—"}</span>
                 </div>
-              ) : (
-                <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  {["Bust", "Waist", "Length", "Front Neck", "Back Neck", "Sleeve"].map((f) => (
-                    <div key={f} className="p-1.5 rounded-lg bg-[#F8F3EC]/50 border border-dashed border-[#D8C19A]">
-                      <span className="text-[9px] text-[#7E5C30] block">{f}</span>
-                      <span className="text-xs font-mono font-bold text-[#3A2025]">____</span>
-                    </div>
-                  ))}
+                <div className="p-1 rounded bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                  <span className="text-[9px] text-[#7E5C30] block font-bold">Waist</span>
+                  <span className="text-xs font-mono font-bold text-[#3A2025]">{meas.waist ? `${meas.waist}”` : "—"}</span>
+                </div>
+                <div className="p-1 rounded bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                  <span className="text-[9px] text-[#7E5C30] block font-bold">Length</span>
+                  <span className="text-xs font-mono font-bold text-[#3A2025]">{meas.blouseLength ? `${meas.blouseLength}”` : "—"}</span>
+                </div>
+                <div className="p-1 rounded bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                  <span className="text-[9px] text-[#7E5C30] block font-bold">Front Neck</span>
+                  <span className="text-xs font-mono font-bold text-[#3A2025]">{meas.frontNeck ? `${meas.frontNeck}”` : "—"}</span>
+                </div>
+                <div className="p-1 rounded bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                  <span className="text-[9px] text-[#7E5C30] block font-bold">Back Neck</span>
+                  <span className="text-xs font-mono font-bold text-[#3A2025]">{meas.backNeck ? `${meas.backNeck}”` : "—"}</span>
+                </div>
+                <div className="p-1 rounded bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                  <span className="text-[9px] text-[#7E5C30] block font-bold">Sleeve Len</span>
+                  <span className="text-xs font-mono font-bold text-[#3A2025]">{meas.sleeveLength ? `${meas.sleeveLength}”` : "—"}</span>
+                </div>
+              </div>
+
+              {order.measurements && (
+                <div className="mt-2 p-1.5 bg-[#F8F3EC]/50 rounded-lg font-mono text-[10px] text-[#3A2025] leading-relaxed line-clamp-2">
+                  {order.measurements}
                 </div>
               )}
             </div>

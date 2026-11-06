@@ -17,6 +17,7 @@ import {
   Save
 } from "lucide-react";
 import type { EnquiryRecord } from "@/app/admin/page";
+import { parseMeasurements, formatMeasurementsToText, type BlouseMeasurements } from "@/lib/measurements";
 
 interface OrderDetailDrawerProps {
   order: EnquiryRecord;
@@ -51,6 +52,9 @@ export default function OrderDetailDrawer({
     adminNotes: order.adminNotes || "",
   });
   const [isSaving, setIsSaving] = useState(false);
+  const parsedInit = parseMeasurements(order.measurements);
+  const [structuredMeas, setStructuredMeas] = useState<BlouseMeasurements>(parsedInit.structured);
+  const [measureNotes, setMeasureNotes] = useState<string>(parsedInit.rawNotes);
 
   const total = Number(formData.orderAmount) || 0;
   const advance = Number(formData.advanceAmount) || 0;
@@ -59,7 +63,10 @@ export default function OrderDetailDrawer({
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await onUpdate(order.id, formData);
+      const formattedMeasurements = formatMeasurementsToText(structuredMeas, measureNotes);
+      const updatedData = { ...formData, measurements: formattedMeasurements };
+      await onUpdate(order.id, updatedData);
+      setFormData(updatedData);
       setIsEditing(false);
     } catch (e) {
       console.error(e);
@@ -409,32 +416,164 @@ export default function OrderDetailDrawer({
           </div>
 
           {/* Measurements Specifications */}
-          <div className="p-4 rounded-2xl border border-[#D8C19A]/40 bg-white space-y-2">
+          <div className="p-4 rounded-2xl border border-[#D8C19A]/40 bg-white space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#7E5C30] flex items-center justify-between pb-2 border-b border-[#D8C19A]/20">
-              <span>Blouse Measurements</span>
-              <span className="text-[10px] text-[#7E5C30]/70">Unit: Inches (”)</span>
+              <span className="flex items-center gap-1.5"><Scissors className="w-3.5 h-3.5 text-[#B08A57]" /> Tailoring Blouse Measurements</span>
+              <span className="text-[10px] text-[#7E5C30]/70 font-mono">Unit: Inches (”)</span>
             </h4>
 
             {isEditing ? (
-              <textarea
-                rows={3}
-                value={formData.measurements || ""}
-                onChange={(e) => setFormData({ ...formData, measurements: e.target.value })}
-                placeholder="Bust: 36, Waist: 30, Length: 14.5, Front Neck: 6.5, Back Neck: 8, Sleeve: 10..."
-                className="w-full p-2.5 rounded-xl border border-[#D8C19A] text-xs font-mono"
-              />
-            ) : formData.measurements ? (
-              <div className="p-3 bg-[#F8F3EC]/50 rounded-xl font-mono text-xs text-[#3A2025] whitespace-pre-wrap leading-relaxed border border-[#D8C19A]/30">
-                {formData.measurements}
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label className="text-[10px] font-bold text-[#7E5C30] block mb-0.5">Bust / Chest</label>
+                    <input
+                      type="text"
+                      value={structuredMeas.bust || ""}
+                      onChange={(e) => setStructuredMeas({ ...structuredMeas, bust: e.target.value })}
+                      placeholder="e.g. 36"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#D8C19A] text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#7E5C30] block mb-0.5">Waist</label>
+                    <input
+                      type="text"
+                      value={structuredMeas.waist || ""}
+                      onChange={(e) => setStructuredMeas({ ...structuredMeas, waist: e.target.value })}
+                      placeholder="e.g. 30"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#D8C19A] text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#7E5C30] block mb-0.5">Blouse Length</label>
+                    <input
+                      type="text"
+                      value={structuredMeas.blouseLength || ""}
+                      onChange={(e) => setStructuredMeas({ ...structuredMeas, blouseLength: e.target.value })}
+                      placeholder="e.g. 14.5"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#D8C19A] text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#7E5C30] block mb-0.5">Front Neck Deep</label>
+                    <input
+                      type="text"
+                      value={structuredMeas.frontNeck || ""}
+                      onChange={(e) => setStructuredMeas({ ...structuredMeas, frontNeck: e.target.value })}
+                      placeholder="e.g. 6.5"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#D8C19A] text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#7E5C30] block mb-0.5">Back Neck Deep</label>
+                    <input
+                      type="text"
+                      value={structuredMeas.backNeck || ""}
+                      onChange={(e) => setStructuredMeas({ ...structuredMeas, backNeck: e.target.value })}
+                      placeholder="e.g. 8.5"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#D8C19A] text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#7E5C30] block mb-0.5">Sleeve Length</label>
+                    <input
+                      type="text"
+                      value={structuredMeas.sleeveLength || ""}
+                      onChange={(e) => setStructuredMeas({ ...structuredMeas, sleeveLength: e.target.value })}
+                      placeholder="e.g. 10.5"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#D8C19A] text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#7E5C30] block mb-0.5">Sleeve Round</label>
+                    <input
+                      type="text"
+                      value={structuredMeas.sleeveRound || ""}
+                      onChange={(e) => setStructuredMeas({ ...structuredMeas, sleeveRound: e.target.value })}
+                      placeholder="e.g. 11"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#D8C19A] text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#7E5C30] block mb-0.5">Shoulder</label>
+                    <input
+                      type="text"
+                      value={structuredMeas.shoulder || ""}
+                      onChange={(e) => setStructuredMeas({ ...structuredMeas, shoulder: e.target.value })}
+                      placeholder="e.g. 14"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#D8C19A] text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-[#7E5C30] block mb-0.5">Arm Hole</label>
+                    <input
+                      type="text"
+                      value={structuredMeas.armHole || ""}
+                      onChange={(e) => setStructuredMeas({ ...structuredMeas, armHole: e.target.value })}
+                      placeholder="e.g. 15.5"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-[#D8C19A] text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold text-[#7E5C30] block mb-0.5">Custom Fitting Notes</label>
+                  <input
+                    type="text"
+                    value={measureNotes}
+                    onChange={(e) => setMeasureNotes(e.target.value)}
+                    placeholder="Princess cut, cup padding, potli buttons, dori..."
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-[#D8C19A] text-xs"
+                  />
+                </div>
               </div>
             ) : (
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-xs py-2">
-                {["Bust", "Waist", "Length", "Front Neck", "Back Neck", "Sleeve"].map((field) => (
-                  <div key={field} className="p-2 rounded-xl bg-[#F8F3EC]/50 border border-dashed border-[#D8C19A]">
-                    <span className="text-[10px] text-[#7E5C30] block">{field}</span>
-                    <span className="text-xs font-bold text-[#3A2025] font-mono">______</span>
+              <div className="space-y-2">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 text-center text-xs">
+                  <div className="p-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                    <span className="text-[9px] text-[#7E5C30] block font-bold">Bust</span>
+                    <span className="text-xs font-bold text-[#3A2025] font-mono">{structuredMeas.bust ? `${structuredMeas.bust}”` : "—"}</span>
                   </div>
-                ))}
+                  <div className="p-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                    <span className="text-[9px] text-[#7E5C30] block font-bold">Waist</span>
+                    <span className="text-xs font-bold text-[#3A2025] font-mono">{structuredMeas.waist ? `${structuredMeas.waist}”` : "—"}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                    <span className="text-[9px] text-[#7E5C30] block font-bold">Length</span>
+                    <span className="text-xs font-bold text-[#3A2025] font-mono">{structuredMeas.blouseLength ? `${structuredMeas.blouseLength}”` : "—"}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                    <span className="text-[9px] text-[#7E5C30] block font-bold">Front Neck</span>
+                    <span className="text-xs font-bold text-[#3A2025] font-mono">{structuredMeas.frontNeck ? `${structuredMeas.frontNeck}”` : "—"}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                    <span className="text-[9px] text-[#7E5C30] block font-bold">Back Neck</span>
+                    <span className="text-xs font-bold text-[#3A2025] font-mono">{structuredMeas.backNeck ? `${structuredMeas.backNeck}”` : "—"}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                    <span className="text-[9px] text-[#7E5C30] block font-bold">Sleeve Len</span>
+                    <span className="text-xs font-bold text-[#3A2025] font-mono">{structuredMeas.sleeveLength ? `${structuredMeas.sleeveLength}”` : "—"}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                    <span className="text-[9px] text-[#7E5C30] block font-bold">Sleeve Rnd</span>
+                    <span className="text-xs font-bold text-[#3A2025] font-mono">{structuredMeas.sleeveRound ? `${structuredMeas.sleeveRound}”` : "—"}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                    <span className="text-[9px] text-[#7E5C30] block font-bold">Shoulder</span>
+                    <span className="text-xs font-bold text-[#3A2025] font-mono">{structuredMeas.shoulder ? `${structuredMeas.shoulder}”` : "—"}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A]/40">
+                    <span className="text-[9px] text-[#7E5C30] block font-bold">Arm Hole</span>
+                    <span className="text-xs font-bold text-[#3A2025] font-mono">{structuredMeas.armHole ? `${structuredMeas.armHole}”` : "—"}</span>
+                  </div>
+                </div>
+
+                {formData.measurements && (
+                  <p className="text-[11px] text-[#7E5C30] italic bg-[#F8F3EC]/40 p-2.5 rounded-xl border border-[#D8C19A]/30">
+                    {formData.measurements}
+                  </p>
+                )}
               </div>
             )}
           </div>
