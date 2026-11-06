@@ -4,6 +4,9 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { site } from "@/lib/site";
+import OrderDetailDrawer from "@/components/OrderDetailDrawer";
+import AtelierInvoiceBill from "@/components/AtelierInvoiceBill";
+import CustomerDetailDrawer from "@/components/CustomerDetailDrawer";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import {
   LayoutDashboard,
@@ -34,7 +37,8 @@ import {
   UploadCloud,
   ChevronRight,
   Landmark,
-  ArrowUpRight
+  ArrowUpRight,
+  Printer
 } from "lucide-react";
 
 
@@ -94,6 +98,7 @@ export default function AdminPage() {
 
   // Order Detail / Edit Modal state
   const [selectedOrder, setSelectedOrder] = useState<EnquiryRecord | null>(null);
+  const [jobCardOrder, setJobCardOrder] = useState<EnquiryRecord | null>(null);
   const [editFormData, setEditFormData] = useState<Partial<EnquiryRecord>>({});
   const [savingOrder, setSavingOrder] = useState(false);
 
@@ -165,7 +170,24 @@ export default function AdminPage() {
       fetchEnquiries(savedToken);
       fetchGallery();
     }
+
+    // Restore active tab from URL hash (e.g. #customers, #orders, #gallery, #revenue) or localStorage
+    const hash = window.location.hash.replace("#", "") as "dashboard" | "orders" | "customers" | "gallery" | "revenue";
+    const savedTab = (localStorage.getItem("aari_admin_tab") || "") as "dashboard" | "orders" | "customers" | "gallery" | "revenue";
+    const validTabs: ("dashboard" | "orders" | "customers" | "gallery" | "revenue")[] = ["dashboard", "orders", "customers", "gallery", "revenue"];
+    
+    if (validTabs.includes(hash)) {
+      setActiveTab(hash);
+    } else if (validTabs.includes(savedTab)) {
+      setActiveTab(savedTab);
+    }
   }, []);
+
+  function switchTab(tab: "dashboard" | "orders" | "customers" | "gallery" | "revenue") {
+    setActiveTab(tab);
+    localStorage.setItem("aari_admin_tab", tab);
+    window.location.hash = tab;
+  }
 
   async function fetchEnquiries(authToken: string) {
     setLoading(true);
@@ -739,7 +761,7 @@ export default function AdminPage() {
               label="Dashboard"
               active={activeTab === "dashboard"}
               onClick={() => {
-                setActiveTab("dashboard");
+                switchTab("dashboard");
                 setIsMobileMenuOpen(false);
               }}
             />
@@ -750,7 +772,7 @@ export default function AdminPage() {
               badge={metrics.todayDeliveriesCount > 0 ? `${metrics.todayDeliveriesCount} Today` : undefined}
               badgeColor="bg-red-500"
               onClick={() => {
-                setActiveTab("orders");
+                switchTab("orders");
                 setIsMobileMenuOpen(false);
               }}
             />
@@ -761,7 +783,7 @@ export default function AdminPage() {
               badge={`${customerProfiles.length}`}
               badgeColor="bg-white/20"
               onClick={() => {
-                setActiveTab("customers");
+                switchTab("customers");
                 setIsMobileMenuOpen(false);
               }}
             />
@@ -772,7 +794,7 @@ export default function AdminPage() {
               badge={`${galleryItems.length}`}
               badgeColor="bg-[#B08A57]"
               onClick={() => {
-                setActiveTab("gallery");
+                switchTab("gallery");
                 setIsMobileMenuOpen(false);
               }}
             />
@@ -781,7 +803,7 @@ export default function AdminPage() {
               label="Revenue & Finance"
               active={activeTab === "revenue"}
               onClick={() => {
-                setActiveTab("revenue");
+                switchTab("revenue");
                 setIsMobileMenuOpen(false);
               }}
             />
@@ -838,12 +860,14 @@ export default function AdminPage() {
               <h1 className="font-serif-display text-xl sm:text-2xl font-bold text-[#3A2025] capitalize">
                 {activeTab === "dashboard" && "Atelier Overview"}
                 {activeTab === "orders" && "Order & Delivery Hub"}
-                {activeTab === "customers" && "Customer CRM & Brides"}
+                {activeTab === "customers" && "Customer Directory & Repeat Brides"}
                 {activeTab === "gallery" && "Live Gallery Studio"}
                 {activeTab === "revenue" && "Financial Analytics"}
               </h1>
               <p className="text-[11px] text-[#7E5C30] font-medium hidden sm:block">
-                Gobichettipalayam Studio • Handcrafted Bridal Management
+                {activeTab === "customers"
+                  ? `Total ${customerProfiles.length} clients registered • ${metrics.repeatCount} returning customers`
+                  : "Gobichettipalayam Studio • Handcrafted Bridal Management"}
               </p>
             </div>
           </div>
@@ -851,9 +875,9 @@ export default function AdminPage() {
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setIsCreateOrderOpen(true)}
-              className="px-3.5 py-2 rounded-xl bg-[#6B2638] text-white text-xs font-semibold hover:bg-[#541D2B] transition-all shadow-xs flex items-center gap-2"
+              className="btn-atelier-primary"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 text-[#D8C19A]" />
               <span className="hidden sm:inline">New Walk-in Order</span>
             </button>
 
@@ -862,10 +886,10 @@ export default function AdminPage() {
                 fetchEnquiries(token);
                 fetchGallery();
               }}
-              className="px-3 py-2 rounded-xl bg-[#F8F3EC] hover:bg-[#F1E7DC] text-[#3A2025] ring-1 ring-[#D8C19A]/60 text-xs font-semibold flex items-center gap-2 transition-all shadow-xs"
+              className="btn-atelier-subtle"
               title="Refresh Records"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-[#7E5C30]" />
+              <RefreshCw className="w-3.5 h-3.5 text-[#B08A57]" />
               <span className="hidden sm:inline">Sync DB</span>
             </button>
           </div>
@@ -924,7 +948,7 @@ export default function AdminPage() {
                     </div>
                     <button
                       onClick={() => {
-                        setActiveTab("orders");
+                        switchTab("orders");
                         setStatusFilter("today_delivery");
                       }}
                       className="text-xs font-semibold text-[#6B2638] hover:underline"
@@ -1019,8 +1043,8 @@ export default function AdminPage() {
                     </div>
 
                     <button
-                      onClick={() => setActiveTab("gallery")}
-                      className="mt-6 w-full py-2.5 rounded-xl bg-[#6B2638] text-white text-xs font-semibold hover:bg-[#541D2B] transition-all shadow-xs"
+                      onClick={() => switchTab("gallery")}
+                      className="mt-6 w-full btn-atelier-primary justify-center text-xs"
                     >
                       Manage Live Photos & Pricing →
                     </button>
@@ -1042,8 +1066,8 @@ export default function AdminPage() {
                     </p>
 
                     <button
-                      onClick={() => setActiveTab("customers")}
-                      className="mt-5 w-full py-2.5 rounded-xl bg-[#F8F3EC] text-[#3A2025] hover:bg-[#F1E7DC] ring-1 ring-[#D8C19A] text-xs font-semibold transition-all shadow-xs"
+                      onClick={() => switchTab("customers")}
+                      className="mt-5 w-full btn-atelier-gold justify-center text-xs"
                     >
                       Open Customer CRM →
                     </button>
@@ -1098,107 +1122,195 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* Orders Grid */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {/* DESKTOP HIGH-DENSITY LEDGER TABLE (Hidden on mobile) */}
+              <div className="hidden md:block bg-white rounded-3xl ring-1 ring-[#D8C19A]/60 shadow-xs overflow-hidden">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-[#F8F3EC] text-[#7E5C30] uppercase font-bold text-[10px] tracking-wider border-b border-[#D8C19A]/40">
+                      <th className="py-3.5 px-4 font-semibold">Order Ref</th>
+                      <th className="py-3.5 px-4 font-semibold">Bride / Customer</th>
+                      <th className="py-3.5 px-4 font-semibold">Blouse Work</th>
+                      <th className="py-3.5 px-4 font-semibold">Delivery Target</th>
+                      <th className="py-3.5 px-4 font-semibold">Muhurtham</th>
+                      <th className="py-3.5 px-4 font-semibold text-right">Bill / Balance</th>
+                      <th className="py-3.5 px-4 font-semibold text-center">Status</th>
+                      <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#D8C19A]/20">
+                    {filteredEnquiries.map((order) => {
+                      const currentStatus = statusOptions.find((s) => s.key === order.status) || statusOptions[0];
+                      const isToday = order.deliveryDate === todayStr;
+                      const totalAmt = order.orderAmount || 0;
+                      const advAmt = order.advanceAmount || 0;
+                      const balAmt = Math.max(0, totalAmt - advAmt);
+
+                      return (
+                        <tr
+                          key={order.id}
+                          onClick={() => setSelectedOrder(order)}
+                          className={`hover:bg-[#F8F3EC]/70 cursor-pointer transition-colors group ${
+                            isToday ? "bg-red-50/30" : ""
+                          }`}
+                        >
+                          <td className="py-3.5 px-4 font-mono font-bold text-[#6B2638]">
+                            ORD-#{order.id}
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="font-bold text-[#3A2025] block group-hover:text-[#6B2638] transition-colors text-sm">
+                              {order.name}
+                            </span>
+                            <span className="text-[11px] text-[#7E5C30] font-mono">
+                              {order.mobile}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="font-medium text-[#3A2025] block">
+                              {order.workType}
+                            </span>
+                            {order.city && (
+                              <span className="text-[10px] text-[#7E5C30]">
+                                {order.city}
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3.5 px-4 font-mono">
+                            <span className={`font-bold ${isToday ? "text-red-600 bg-red-100 px-2.5 py-0.5 rounded-full" : "text-[#3A2025]"}`}>
+                              {order.deliveryDate || "Not Set"}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 font-mono text-[#6B2638] font-semibold">
+                            {order.functionDate || "—"}
+                          </td>
+                          <td className="py-3.5 px-4 text-right">
+                            <div className="font-bold text-[#3A2025] text-sm">
+                              ₹{totalAmt.toLocaleString("en-IN")}
+                            </div>
+                            <div className="text-[11px] font-medium text-[#7E5C30]">
+                              {balAmt > 0 ? (
+                                <span className="text-amber-700">₹{balAmt.toLocaleString("en-IN")} due</span>
+                              ) : (
+                                <span className="text-[#0F7A6C]">Paid</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4 text-center">
+                            <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold border ${currentStatus.color}`}>
+                              {currentStatus.label}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setJobCardOrder(order)}
+                                className="p-2 rounded-xl bg-white hover:bg-[#F8F3EC] text-[#6B2638] ring-1 ring-[#D8C19A]/80 transition-all shadow-2xs hover:scale-105 cursor-pointer"
+                                title="Print Bill / Job Slip"
+                              >
+                                <Printer className="w-4 h-4 text-[#B08A57]" />
+                              </button>
+                              <a
+                                href={generateWhatsAppMessage(order, order.status)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 ring-1 ring-emerald-300 transition-all shadow-2xs hover:scale-105"
+                                title="Send WhatsApp Update"
+                              >
+                                <MessageCircle className="w-4 h-4" />
+                              </a>
+                              <button
+                                onClick={() => setSelectedOrder(order)}
+                                className="btn-atelier-primary text-xs !py-1 !px-2.5"
+                              >
+                                View Order
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* MOBILE CARDS VIEW (Visible only on mobile screens < md) */}
+              <div className="md:hidden space-y-4">
                 {filteredEnquiries.map((order) => {
                   const currentStatus = statusOptions.find((s) => s.key === order.status) || statusOptions[0];
                   const isToday = order.deliveryDate === todayStr;
+                  const totalAmt = order.orderAmount || 0;
+                  const advAmt = order.advanceAmount || 0;
+                  const balAmt = Math.max(0, totalAmt - advAmt);
 
                   return (
                     <div
                       key={order.id}
-                      className={`bg-[#FFFFFF] rounded-3xl p-6 ring-1 shadow-sm flex flex-col justify-between transition-all hover:shadow-md ${
+                      onClick={() => setSelectedOrder(order)}
+                      className={`bg-white rounded-2xl p-4 ring-1 shadow-sm space-y-3 cursor-pointer active:scale-98 transition-all ${
                         isToday ? "ring-2 ring-red-400 bg-red-50/20" : "ring-[#D8C19A]/60"
                       }`}
                     >
-                      <div>
-                        {/* Header: Name & Status */}
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <span className="text-[10px] font-mono text-[#7E5C30] font-bold">
-                              ORD-#{order.id}
-                            </span>
-                            <h3 className="font-serif-display text-lg font-bold text-[#3A2025]">
-                              {order.name}
-                            </h3>
-                            <a
-                              href={`tel:${order.mobile}`}
-                              className="text-xs text-[#6B2638] font-semibold hover:underline block mt-0.5"
-                            >
-                              <span className="inline-flex items-center gap-1"><Phone className="w-3 h-3 text-[#7E5C30]" /> {order.mobile}</span>
-                            </a>
-                          </div>
-
-                          <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${currentStatus.color}`}>
-                            {currentStatus.label}
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <span className="text-[10px] font-mono text-[#7E5C30] font-bold">
+                            ORD-#{order.id}
                           </span>
+                          <h4 className="font-serif-display text-base font-bold text-[#3A2025]">
+                            {order.name}
+                          </h4>
+                          <span className="text-xs text-[#7E5C30] font-mono block">{order.mobile}</span>
                         </div>
-
-                        {/* Order Specific Details */}
-                        <div className="mt-4 space-y-2 text-xs text-[#3A2025]/80 bg-[#F8F3EC]/50 p-3.5 rounded-2xl border border-[#D8C19A]/30">
-                          <div className="flex justify-between">
-                            <span className="text-[#7E5C30] font-medium">Work Type:</span>
-                            <span className="font-bold text-[#3A2025]">{order.workType}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-[#7E5C30] font-medium">Delivery Date:</span>
-                            <span className={`font-mono font-bold ${isToday ? "text-red-600 font-extrabold" : "text-[#3A2025]"}`}>
-                              {order.deliveryDate || "Not Set"}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-[#7E5C30] font-medium">Function Date:</span>
-                            <span className="font-mono text-[#3A2025]">{order.functionDate || "Not Set"}</span>
-                          </div>
-                          <div className="flex justify-between border-t border-[#D8C19A]/20 pt-2">
-                            <span className="text-[#7E5C30] font-medium">Payment:</span>
-                            <span className="font-bold text-[#0F7A6C]">
-                              Advance ₹{(order.advanceAmount || 0).toLocaleString("en-IN")} / Total ₹{(order.orderAmount || 0).toLocaleString("en-IN")}
-                            </span>
-                          </div>
-                        </div>
-
-                        {order.message && (
-                          <p className="mt-3 text-xs text-[#3A2025]/75 italic line-clamp-2">
-                            "{order.message}"
-                          </p>
-                        )}
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${currentStatus.color}`}>
+                          {currentStatus.label}
+                        </span>
                       </div>
 
-                      {/* Actions */}
-                      <div className="mt-5 pt-4 border-t border-[#D8C19A]/30 flex items-center justify-between gap-2">
-                        <select
-                          value={order.status}
-                          disabled={updatingId === order.id}
-                          onChange={(e) => updateRecord(order.id, { status: e.target.value })}
-                          className="text-xs bg-[#F8F3EC] border border-[#D8C19A] rounded-xl px-2.5 py-2 font-medium focus:outline-none focus:ring-1 focus:ring-[#B08A57]"
-                        >
-                          {statusOptions.map((st) => (
-                            <option key={st.key} value={st.key}>
-                              {st.label}
-                            </option>
-                          ))}
-                        </select>
+                      <div className="p-2.5 rounded-xl bg-[#F8F3EC]/60 border border-[#D8C19A]/40 text-xs space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-[#7E5C30]">Work Type:</span>
+                          <span className="font-bold text-[#3A2025]">{order.workType}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[#7E5C30]">Delivery:</span>
+                          <span className={`font-mono font-bold ${isToday ? "text-red-600" : "text-[#3A2025]"}`}>
+                            {order.deliveryDate || "Not Set"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between pt-1 border-t border-[#D8C19A]/20">
+                          <span className="text-[#7E5C30]">Payment:</span>
+                          <span className="font-bold text-[#0F7A6C]">
+                            ₹{totalAmt.toLocaleString("en-IN")}{" "}
+                            {balAmt > 0 && <span className="text-amber-700 font-normal">({balAmt} due)</span>}
+                          </span>
+                        </div>
+                      </div>
 
-                        <div className="flex items-center gap-1.5">
+                      <div className="flex items-center justify-between pt-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setJobCardOrder(order)}
+                            className="p-2 rounded-xl bg-[#F8F3EC] text-[#6B2638] ring-1 ring-[#D8C19A] text-xs font-semibold flex items-center gap-1"
+                          >
+                            <Printer className="w-3.5 h-3.5 text-[#B08A57]" />
+                            <span>Print</span>
+                          </button>
                           <a
                             href={generateWhatsAppMessage(order, order.status)}
                             target="_blank"
-                            title="Send WhatsApp Update to Bride"
-                            className="p-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 ring-1 ring-emerald-200 transition-colors"
+                            rel="noopener noreferrer"
+                            className="p-2 rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-xs font-semibold flex items-center gap-1"
                           >
-                            💬
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            <span>WhatsApp</span>
                           </a>
-                          <button
-                            onClick={() => {
-                              setSelectedOrder(order);
-                              setEditFormData(order);
-                            }}
-                            className="px-3 py-2 rounded-xl bg-[#6B2638] text-white text-xs font-semibold hover:bg-[#541D2B] transition-colors shadow-xs"
-                          >
-                            Details
-                          </button>
                         </div>
+                        <button
+                          onClick={() => setSelectedOrder(order)}
+                          className="px-3.5 py-1.5 rounded-xl bg-[#6B2638] text-white text-xs font-bold"
+                        >
+                          View Order →
+                        </button>
                       </div>
                     </div>
                   );
@@ -1217,82 +1329,185 @@ export default function AdminPage() {
           {/* TAB 3: CUSTOMER CRM */}
           {activeTab === "customers" && (
             <div className="space-y-6 max-w-7xl mx-auto">
-              <div className="bg-[#FFFFFF] rounded-3xl p-6 ring-1 ring-[#D8C19A]/60 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <h3 className="font-serif-display text-xl font-bold text-[#3A2025]">
-                    Customer Directory & Repeat Brides
-                  </h3>
-                  <p className="text-xs text-[#7E5C30] mt-0.5">
-                    Total {customerProfiles.length} clients registered • {metrics.repeatCount} returning customers
-                  </p>
+              {/* DESKTOP TABLE VIEW */}
+              <div className="hidden md:block bg-[#FFFFFF] rounded-3xl p-6 ring-1 ring-[#D8C19A]/60 shadow-xs">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-[#D8C19A]/40 text-[#7E5C30] uppercase tracking-wider font-semibold">
+                        <th className="py-3 px-3">Client Name</th>
+                        <th className="py-3 px-3">Contact</th>
+                        <th className="py-3 px-3">City</th>
+                        <th className="py-3 px-3 text-center">Orders Placed</th>
+                        <th className="py-3 px-3">Lifetime Value</th>
+                        <th className="py-3 px-3">Balance Due</th>
+                        <th className="py-3 px-3">Type</th>
+                        <th className="py-3 px-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#D8C19A]/20">
+                      {customerProfiles.map((client) => {
+                        const totalSpent = client.totalSpent || 0;
+                        const totalAdv = client.orders.reduce((sum, o) => sum + (o.advanceAmount || 0), 0);
+                        const balanceDue = totalSpent - totalAdv;
+
+                        return (
+                          <tr
+                            key={client.mobile}
+                            onClick={() => setSelectedCustomer(client)}
+                            className="hover:bg-[#F8F3EC]/50 cursor-pointer transition-colors"
+                          >
+                            <td className="py-3.5 px-3">
+                              <div className="flex items-center gap-3">
+                                <span className="w-9 h-9 rounded-xl bg-[#6B2638] text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-2xs">
+                                  {client.name[0]}
+                                </span>
+                                <div>
+                                  <div className="font-bold text-[#3A2025] hover:text-[#6B2638] transition-colors">
+                                    {client.name}
+                                  </div>
+                                  <div className="text-[11px] text-[#7E5C30]">
+                                    Last: {client.orders[0]?.workType || "Bridal Wear"}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-3 font-mono text-[#3A2025]">{client.mobile}</td>
+                            <td className="py-3.5 px-3 text-[#7E5C30]">{client.city || "Tamil Nadu"}</td>
+                            <td className="py-3.5 px-3 text-center">
+                              <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-[#F8F3EC] text-[#3A2025] font-bold text-xs ring-1 ring-[#D8C19A]/60">
+                                {client.orders.length} orders
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-3 font-mono font-bold text-[#0F7A6C]">
+                              ₹{totalSpent.toLocaleString("en-IN")}
+                            </td>
+                            <td className="py-3.5 px-3 font-mono font-bold">
+                              {balanceDue > 0 ? (
+                                <span className="text-red-600 bg-red-50 px-2 py-0.5 rounded-lg">₹{balanceDue.toLocaleString("en-IN")}</span>
+                              ) : (
+                                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg">Settled</span>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-3">
+                              {client.isRepeat ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full border border-amber-300">
+                                  <Crown className="w-3 h-3 text-[#B08A57]" /> Repeat Bride
+                                </span>
+                              ) : (
+                                <span className="text-[11px] text-[#7E5C30] bg-[#F8F3EC] px-2 py-0.5 rounded-full border border-[#D8C19A]/50 font-medium">
+                                  Royal Bride
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-3 text-right">
+                              <div className="inline-flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedCustomer(client)}
+                                  className="btn-atelier-gold !py-1 !px-2.5 text-xs"
+                                  title="View Profile"
+                                >
+                                  View
+                                </button>
+                                <a
+                                  href={`https://wa.me/${client.mobile.replace(/[^0-9]/g, "")}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 ring-1 ring-emerald-300 transition-all shadow-2xs hover:scale-105"
+                                  title="WhatsApp"
+                                >
+                                  <MessageCircle className="w-4 h-4" />
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {customerProfiles.map((client) => (
-                  <div
-                    key={client.mobile}
-                    className="bg-[#FFFFFF] rounded-3xl p-6 ring-1 ring-[#D8C19A]/60 shadow-sm flex flex-col justify-between"
-                  >
-                    <div>
+              {/* MOBILE CARDS VIEW */}
+              <div className="grid md:hidden grid-cols-1 gap-4">
+                {customerProfiles.map((client) => {
+                  const totalSpent = client.totalSpent || 0;
+                  const totalAdv = client.orders.reduce((sum, o) => sum + (o.advanceAmount || 0), 0);
+                  const balanceDue = totalSpent - totalAdv;
+
+                  return (
+                    <div
+                      key={client.mobile}
+                      onClick={() => setSelectedCustomer(client)}
+                      className="bg-[#FFFFFF] rounded-2xl p-5 ring-1 ring-[#D8C19A]/60 shadow-xs cursor-pointer active:scale-[0.99] transition-all"
+                    >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="w-11 h-11 rounded-2xl bg-[#6B2638] text-white flex items-center justify-center text-base font-bold shadow-xs">
+                          <span className="w-10 h-10 rounded-xl bg-[#6B2638] text-white flex items-center justify-center text-sm font-bold shadow-2xs">
                             {client.name[0]}
                           </span>
                           <div>
                             <h4 className="font-serif-display text-base font-bold text-[#3A2025] flex items-center gap-1.5">
                               <span>{client.name}</span>
                               {client.isRepeat && (
-                                <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full border border-amber-300">
-                                  <span className="inline-flex items-center gap-1.5"><Crown className="w-3.5 h-3.5 text-[#B08A57]" /> Repeat Bride</span>
-                                </span>
+                                <Crown className="w-3.5 h-3.5 text-[#B08A57]" />
                               )}
                             </h4>
-                            <p className="text-xs text-[#7E5C30]">{client.city}</p>
+                            <p className="text-xs text-[#7E5C30]">{client.city} • <span className="font-mono">{client.mobile}</span></p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="mt-4 p-3.5 rounded-2xl bg-[#F8F3EC]/50 border border-[#D8C19A]/30 space-y-2 text-xs">
-                        <div className="flex justify-between">
-                          <span className="text-[#7E5C30]">Total Orders Placed:</span>
-                          <span className="font-bold text-[#3A2025]">{client.orders.length} orders</span>
+                      <div className="mt-3.5 p-3 rounded-xl bg-[#F8F3EC]/50 border border-[#D8C19A]/30 grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <div className="text-[10px] text-[#7E5C30] uppercase">Orders</div>
+                          <div className="font-bold text-[#3A2025]">{client.orders.length} orders</div>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-[#7E5C30]">Lifetime Spent:</span>
-                          <span className="font-bold text-[#0F7A6C]">₹{client.totalSpent.toLocaleString("en-IN")}</span>
+                        <div>
+                          <div className="text-[10px] text-[#7E5C30] uppercase">Lifetime Spent</div>
+                          <div className="font-bold text-[#0F7A6C]">₹{totalSpent.toLocaleString("en-IN")}</div>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-[#7E5C30]">Last Work Type:</span>
-                          <span className="font-semibold text-[#3A2025]">{client.orders[0]?.workType}</span>
+                        <div className="col-span-2 pt-1 border-t border-[#D8C19A]/20 flex justify-between items-center">
+                          <span className="text-[10px] text-[#7E5C30]">Balance Due:</span>
+                          <span className="font-bold">
+                            {balanceDue > 0 ? (
+                              <span className="text-red-600">₹{balanceDue.toLocaleString("en-IN")}</span>
+                            ) : (
+                              <span className="text-emerald-700">Settled</span>
+                            )}
+                          </span>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="mt-5 pt-4 border-t border-[#D8C19A]/30 flex items-center justify-between gap-2">
-                      <button
-                        onClick={() => setSelectedCustomer(client)}
-                        className="py-2 px-3 rounded-xl bg-[#F8F3EC] hover:bg-[#F1E7DC] text-[#3A2025] text-xs font-bold ring-1 ring-[#D8C19A] transition-colors"
-                      >
-                        <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> History</span> ({client.orders.length})
-                      </button>
-                      <a
-                        href={`https://wa.me/${client.mobile.replace(/[^0-9]/g, "")}`}
-                        target="_blank"
-                        className="flex-1 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold text-center hover:bg-emerald-700 transition-colors flex items-center justify-center gap-1.5 shadow-xs"
-                      >
-                        <span className="flex items-center gap-1.5"><MessageCircle className="w-3.5 h-3.5" /> WhatsApp</span>
-                      </a>
-                      <a
-                        href={`tel:${client.mobile}`}
-                        className="py-2 px-3 rounded-xl bg-[#6B2638] text-white text-xs font-bold hover:bg-[#541D2B] transition-colors shadow-xs"
-                      >
-                        <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Call</span>
-                      </a>
+                      <div className="mt-3 pt-3 border-t border-[#D8C19A]/30 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedCustomer(client)}
+                          className="flex-1 btn-atelier-primary !py-2 text-xs"
+                        >
+                          View Details →
+                        </button>
+                        <a
+                          href={`https://wa.me/${client.mobile.replace(/[^0-9]/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 rounded-xl bg-emerald-600 text-white shadow-xs"
+                          title="WhatsApp"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                        </a>
+                        <a
+                          href={`tel:${client.mobile}`}
+                          className="p-2 rounded-xl bg-[#F8F3EC] text-[#3A2025] ring-1 ring-[#D8C19A]/60 shadow-xs"
+                          title="Call"
+                        >
+                          <Phone className="w-4 h-4" />
+                        </a>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -1408,9 +1623,10 @@ export default function AdminPage() {
                     <button
                       type="submit"
                       disabled={addingImage || !newImage.imageUrl}
-                      className="ml-auto py-2.5 px-6 rounded-xl bg-[#6B2638] text-white text-xs font-semibold hover:bg-[#541D2B] transition-colors disabled:opacity-50 shadow-sm"
+                      className="ml-auto btn-atelier-primary disabled:opacity-50"
                     >
-                      {addingImage ? "Publishing..." : "✨ Publish to Live Gallery"}
+                      <Sparkles className="w-4 h-4 text-[#D8C19A]" />
+                      <span>{addingImage ? "Publishing..." : "Publish to Live Gallery"}</span>
                     </button>
                   </div>
                 </form>
@@ -1455,16 +1671,16 @@ export default function AdminPage() {
                       <div className="mt-4 pt-3 border-t border-[#D8C19A]/30 flex items-center justify-between gap-2">
                         <button
                           onClick={() => setEditingGalleryItem(item)}
-                          className="flex-1 py-1.5 rounded-xl bg-[#F8F3EC] hover:bg-[#F1E7DC] text-[#3A2025] text-xs font-semibold ring-1 ring-[#D8C19A] transition-colors"
+                          className="flex-1 btn-atelier-subtle !py-1 text-xs"
                         >
-                          <span className="flex items-center gap-1.5"><Pencil className="w-3.5 h-3.5" /> Edit</span>
+                          <Pencil className="w-3.5 h-3.5" /> Edit
                         </button>
                         <button
                           onClick={() => setDeletingGalleryItem(item)}
-                          className="p-1.5 rounded-xl text-red-600 hover:bg-red-50 text-xs font-semibold transition-colors"
+                          className="p-1.5 rounded-xl text-red-600 hover:bg-red-50 text-xs font-semibold transition-colors cursor-pointer"
                           title="Delete photo"
                         >
-                          🗑️
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -1671,20 +1887,21 @@ export default function AdminPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#D8C19A]/30">
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#D8C19A]/30">
                 <button
                   type="button"
                   onClick={() => setIsCreateOrderOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#7E5C30]"
+                  className="btn-atelier-subtle"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creatingOrder}
-                  className="px-5 py-2.5 rounded-xl bg-[#6B2638] text-white text-xs font-semibold hover:bg-[#541D2B] transition-colors shadow-xs"
+                  className="btn-atelier-primary disabled:opacity-50"
                 >
-                  {creatingOrder ? "Creating..." : "Save & Create Order"}
+                  <Plus className="w-4 h-4 text-[#D8C19A]" />
+                  <span>{creatingOrder ? "Creating..." : "Save & Create Order"}</span>
                 </button>
               </div>
             </form>
@@ -1693,240 +1910,44 @@ export default function AdminPage() {
       )}
 
       {/* ========================================================= */}
-      {/* 4. ORDER EDIT / DETAILS MODAL                              */}
+      {/* 4. ALL-IN-ONE ORDER DETAIL DRAWER & ACTIONS                */}
       {/* ========================================================= */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#FFFFFF] rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl ring-1 ring-[#D8C19A] border border-[#D8C19A]/40 space-y-6">
-            <div className="flex items-start justify-between border-b border-[#D8C19A]/30 pb-4">
-              <div>
-                <span className="text-xs font-mono font-bold text-[#B08A57]">
-                  ORD-#{selectedOrder.id} • Registered {new Date(selectedOrder.createdAt).toLocaleDateString()}
-                </span>
-                <h3 className="font-serif-display text-2xl font-bold text-[#3A2025]">
-                  {selectedOrder.name}
-                </h3>
-              </div>
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="p-2 text-xl text-[#7E5C30] hover:text-[#3A2025]"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4 text-xs">
-              <div>
-                <label className="block font-bold text-[#3A2025] mb-1">Mobile Contact</label>
-                <input
-                  type="text"
-                  value={editFormData.mobile || ""}
-                  onChange={(e) => setEditFormData({ ...editFormData, mobile: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C19A] bg-white font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-[#3A2025] mb-1">City / Location</label>
-                <input
-                  type="text"
-                  value={editFormData.city || ""}
-                  onChange={(e) => setEditFormData({ ...editFormData, city: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C19A] bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-[#3A2025] mb-1">Function / Wedding Date</label>
-                <input
-                  type="date"
-                  value={editFormData.functionDate || ""}
-                  onChange={(e) => setEditFormData({ ...editFormData, functionDate: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C19A] bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-red-600 mb-1">Target Delivery Deadline</label>
-                <input
-                  type="date"
-                  value={editFormData.deliveryDate || ""}
-                  onChange={(e) => setEditFormData({ ...editFormData, deliveryDate: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-red-300 bg-red-50/30 font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-[#3A2025] mb-1">Total Agreed Price (₹)</label>
-                <input
-                  type="number"
-                  value={editFormData.orderAmount || 0}
-                  onChange={(e) => setEditFormData({ ...editFormData, orderAmount: Number(e.target.value) })}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C19A] bg-white font-mono font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-[#0F7A6C] mb-1">Advance Received (₹)</label>
-                <input
-                  type="number"
-                  value={editFormData.advanceAmount || 0}
-                  onChange={(e) => setEditFormData({ ...editFormData, advanceAmount: Number(e.target.value) })}
-                  className="w-full px-3 py-2 rounded-xl border border-emerald-300 bg-emerald-50/30 font-mono font-bold text-[#0F7A6C]"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block font-bold text-[#3A2025] mb-1">
-                  Blouse Stitching Measurements & Specifications
-                </label>
-                <textarea
-                  rows={3}
-                  value={editFormData.measurements || ""}
-                  onChange={(e) => setEditFormData({ ...editFormData, measurements: e.target.value })}
-                  placeholder="Front neck, back deep neck, sleeve length, chest, waist measurements..."
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C19A] bg-white text-xs"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block font-bold text-[#3A2025] mb-1">
-                  Internal Atelier Notes
-                </label>
-                <textarea
-                  rows={2}
-                  value={editFormData.adminNotes || ""}
-                  onChange={(e) => setEditFormData({ ...editFormData, adminNotes: e.target.value })}
-                  placeholder="Thread color codes, artisan assigned, courier tracking..."
-                  className="w-full px-3 py-2 rounded-xl border border-[#D8C19A] bg-white text-xs"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-[#D8C19A]/30">
-              <a
-                href={generateWhatsAppMessage(selectedOrder, selectedOrder.status)}
-                target="_blank"
-                className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200 hover:bg-emerald-100 flex items-center gap-1.5"
-              >
-                <span className="flex items-center gap-2"><MessageCircle className="w-4 h-4" /> WhatsApp Status Update</span>
-              </a>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedOrder(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#7E5C30] hover:bg-[#F8F3EC]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={savingOrder}
-                  onClick={handleSaveOrderEdit}
-                  className="px-5 py-2 rounded-xl bg-[#6B2638] text-white text-xs font-semibold hover:bg-[#541D2B] transition-colors shadow-sm disabled:opacity-50"
-                >
-                  {savingOrder ? "Saving..." : "Save Order Changes"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <OrderDetailDrawer
+          order={selectedOrder}
+          statusOptions={statusOptions}
+          onClose={() => setSelectedOrder(null)}
+          onPrint={(ord) => setJobCardOrder(ord)}
+          onUpdate={async (id, updates) => {
+            await updateRecord(id, updates);
+            setSelectedOrder((prev) => (prev ? { ...prev, ...updates } : null));
+          }}
+          generateWhatsAppUrl={generateWhatsAppMessage}
+        />
       )}
 
       {/* ========================================================= */}
-      {/* 5. CUSTOMER ORDER HISTORY MODAL                            */}
+      {/* 4.1 ARTISAN JOB CARD & INVOICE MODAL                       */}
+      {/* ========================================================= */}
+      {jobCardOrder && (
+        <AtelierInvoiceBill
+          order={jobCardOrder}
+          onClose={() => setJobCardOrder(null)}
+        />
+      )}
+
+      {/* ========================================================= */}
+      {/* 5. CUSTOMER PROFILE & ORDER HISTORY DRAWER                 */}
       {/* ========================================================= */}
       {selectedCustomer && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#FFFFFF] rounded-3xl w-full max-w-xl max-h-[85vh] overflow-y-auto p-6 sm:p-8 shadow-2xl ring-1 ring-[#D8C19A] space-y-5">
-            <div className="flex items-start justify-between border-b border-[#D8C19A]/30 pb-4">
-              <div className="flex items-center gap-3">
-                <span className="w-12 h-12 rounded-2xl bg-[#6B2638] text-white flex items-center justify-center text-lg font-bold shadow-xs">
-                  {selectedCustomer.name[0]}
-                </span>
-                <div>
-                  <h3 className="font-serif-display text-xl font-bold text-[#3A2025] flex items-center gap-2">
-                    <span>{selectedCustomer.name}</span>
-                    {selectedCustomer.isRepeat && (
-                      <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full border border-amber-300">
-                        <span className="inline-flex items-center gap-1.5"><Crown className="w-3.5 h-3.5 text-[#B08A57]" /> Repeat Client</span>
-                      </span>
-                    )}
-                  </h3>
-                  <p className="text-xs text-[#7E5C30]">
-                    {selectedCustomer.city} • Lifetime Spend: <span className="font-bold text-[#0F7A6C]">₹{selectedCustomer.totalSpent.toLocaleString("en-IN")}</span>
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setSelectedCustomer(null)}
-                className="p-1 text-lg text-[#7E5C30] hover:text-[#3A2025]"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#7E5C30]">
-                Order History ({selectedCustomer.orders.length} past orders)
-              </h4>
-
-              {selectedCustomer.orders.map((ord) => (
-                <div
-                  key={ord.id}
-                  className="p-4 rounded-2xl bg-[#F8F3EC]/70 border border-[#D8C19A]/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs"
-                >
-                  <div>
-                    <span className="font-mono text-[10px] font-bold text-[#7E5C30]">ORD-#{ord.id}</span>
-                    <h5 className="font-bold text-[#3A2025]">{ord.workType}</h5>
-                    <p className="text-[11px] text-[#7E5C30]">
-                      Ordered on {new Date(ord.createdAt).toLocaleDateString()}
-                      {ord.deliveryDate ? ` • Delivery: ${ord.deliveryDate}` : ""}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3 self-end sm:self-center">
-                    <span className="font-bold text-[#0F7A6C]">
-                      ₹{(ord.orderAmount || 0).toLocaleString("en-IN")}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white border border-[#D8C19A] capitalize">
-                      {ord.status.replace("_", " ")}
-                    </span>
-                    <button
-                      onClick={() => {
-                        setSelectedCustomer(null);
-                        setSelectedOrder(ord);
-                        setEditFormData(ord);
-                      }}
-                      className="px-2.5 py-1 rounded-lg bg-[#6B2638] text-white text-[11px] font-semibold"
-                    >
-                      View
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-[#D8C19A]/30">
-              <a
-                href={`https://wa.me/${selectedCustomer.mobile.replace(/[^0-9]/g, "")}`}
-                target="_blank"
-                className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200 hover:bg-emerald-100 flex items-center gap-1.5"
-              >
-                <span className="flex items-center gap-2"><MessageCircle className="w-4 h-4" /> WhatsApp Customer</span>
-              </a>
-
-              <button
-                onClick={() => setSelectedCustomer(null)}
-                className="px-4 py-2 rounded-xl bg-[#F8F3EC] text-xs font-semibold text-[#7E5C30]"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+        <CustomerDetailDrawer
+          customer={selectedCustomer}
+          onClose={() => setSelectedCustomer(null)}
+          onSelectOrder={(ord) => {
+            setSelectedCustomer(null);
+            setSelectedOrder(ord);
+          }}
+        />
       )}
 
       {/* ========================================================= */}

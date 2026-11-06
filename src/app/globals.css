@@ -310,3 +310,144 @@ html.lenis, html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+
+/* Clean Print Media Styles for Job Card & Invoices */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .printable-job-card, .printable-job-card * {
+    visibility: visible;
+  }
+  .printable-job-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* ========================================================================== */
+/* ATELIER LUXURY BUTTON DESIGN SYSTEM (Couture Boutique Aesthetics)          */
+/* ========================================================================== */
+.btn-atelier-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #7A2E40 0%, #521B27 100%);
+  border: 1px solid rgba(216, 193, 154, 0.45);
+  box-shadow: 0 2px 8px -2px rgba(107, 38, 56, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-atelier-primary:hover {
+  background: linear-gradient(135deg, #8E364B 0%, #632230 100%);
+  border-color: rgba(216, 193, 154, 0.75);
+  box-shadow: 0 4px 14px -2px rgba(107, 38, 56, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-atelier-primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(107, 38, 56, 0.3);
+}
+
+.btn-atelier-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  color: #3A2025;
+  background: linear-gradient(135deg, #FFFDF9 0%, #F4E8D7 100%);
+  border: 1px solid rgba(176, 138, 87, 0.45);
+  box-shadow: 0 2px 6px -1px rgba(176, 138, 87, 0.15), inset 0 1px 0 #FFFFFF;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-atelier-gold:hover {
+  background: linear-gradient(135deg, #FFFFFF 0%, #EBDBC5 100%);
+  border-color: rgba(176, 138, 87, 0.8);
+  box-shadow: 0 4px 12px -2px rgba(176, 138, 87, 0.25), inset 0 1px 0 #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.btn-atelier-gold:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px rgba(176, 138, 87, 0.15);
+}
+
+.btn-atelier-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #108474 0%, #085A4F 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 2px 8px -2px rgba(16, 132, 116, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-atelier-whatsapp:hover {
+  background: linear-gradient(135deg, #149986 0%, #0A6C5F 100%);
+  box-shadow: 0 4px 14px -2px rgba(16, 132, 116, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-atelier-whatsapp:active {
+  transform: translateY(1px);
+}
+
+.btn-atelier-subtle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5A3A40;
+  background: rgba(248, 243, 236, 0.8);
+  border: 1px solid rgba(216, 193, 154, 0.5);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-atelier-subtle:hover {
+  background: #FFFFFF;
+  color: #3A2025;
+  border-color: rgba(176, 138, 87, 0.7);
+  box-shadow: 0 2px 8px -2px rgba(58, 32, 37, 0.08);
+  transform: translateY(-1px);
+}

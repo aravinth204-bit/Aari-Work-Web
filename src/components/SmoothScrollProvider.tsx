@@ -12,6 +12,9 @@ export default function SmoothScrollProvider({
     // Check if user prefers reduced motion
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
+    // Do not run smooth scroll hijacking inside admin panel
+    if (window.location.pathname.startsWith("/admin")) return;
+
 
     // Initialize Lenis for luxurious buttery smooth scrolling (desktop + mobile touch)
     const lenis = new Lenis({

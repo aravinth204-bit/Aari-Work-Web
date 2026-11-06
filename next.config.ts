@@ -6,7 +6,6 @@ const galleryHosts = (process.env.GALLERY_IMAGE_HOSTS ?? "")
   .split(",")
   .map((host) => host.trim())
   .filter(Boolean);
-const cloudinaryCloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
 
 const securityHeaders = [
   {
@@ -41,15 +40,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
-      ...(cloudinaryCloudName
-        ? [
-            {
-              protocol: "https" as const,
-              hostname: "res.cloudinary.com",
-              pathname: `/${cloudinaryCloudName}/image/**`,
-            },
-          ]
-        : []),
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
       ...galleryHosts.map((hostname) => ({
         protocol: 'https' as const,
         hostname,
